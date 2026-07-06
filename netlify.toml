@@ -1,0 +1,35 @@
+# Redirects from the old Squarespace URLs to the new static site paths.
+# Netlify serves *.html files at their extensionless path automatically
+# ("Pretty URLs"), so most old paths (/uebermich, /consulting, /nachhilfe,
+# /kontakt, /impressum, /datenschutz, /agb, /insights, /insights/effektive-nachhilfe)
+# already match without any redirect. Only the slugs that changed need one.
+
+[[redirects]]
+  from = "/dozententtigkeit"
+  to = "/dozententaetigkeit"
+  status = 301
+
+[[redirects]]
+  from = "/insights/3d-druck-in-der-robotik-praktische-anwendungen-im-alltag"
+  to = "/insights/3d-druck-in-der-robotik"
+  status = 301
+
+[[redirects]]
+  from = "/insights/warum-interdisziplinres-denken-die-zukunft-der-technik-ist"
+  to = "/insights/interdisziplinaeres-denken"
+  status = 301
+
+[[redirects]]
+  from = "/insights/beruf-amp-studium-wie-ich-balance-finde"
+  to = "/insights/beruf-studium-balance"
+  status = 301
+
+[[redirects]]
+  from = "/insights/matlabsimulink"
+  to = "/insights/matlab-simulink"
+  status = 301
+
+[[redirects]]
+  from = "/s/CV_SaraHofmann.pdf"
+  to = "/assets/cv/CV_SaraHofmann.pdf"
+  status = 301
