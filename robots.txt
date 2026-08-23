@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /danke.html
 
-Sitemap: https://www.sara-hofmann.de/sitemap.xml
+Sitemap: https://sarahofmann.de/sitemap.xml

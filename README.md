@@ -1,8 +1,7 @@
-# sara-hofmann.de — statischer Nachbau
+# sarahofmann.de — statische Website
 
-Statischer Nachbau der ursprünglich auf Squarespace gehosteten Website
-**sara-hofmann.de**. Reines HTML/CSS/JS, kein Framework, kein Backend,
-kein CMS — läuft auf jedem statischen Hoster (empfohlen: Netlify).
+Statische HTML/CSS/JS-Website für **sarahofmann.de**. Kein Framework, kein CMS.
+Das Kontaktformular nutzt Netlify Forms; deshalb ist Netlify der vorgesehene Hoster.
 
 ## Projektstruktur
 
@@ -18,11 +17,15 @@ insights.html             Alle Insights-Artikel (Übersicht)
 impressum.html
 datenschutz.html
 agb.html
+widerruf.html             Widerrufsbelehrung und Muster-Widerrufsformular
+404.html                  Eigene Fehlerseite
 insights/                 Die 5 einzelnen Blogartikel
 assets/images/            Bilder (Logo, Portrait, Blog-Thumbnails, Favicons)
-assets/cv/                 CV_SaraHofmann.pdf
+assets/cv/                 Öffentliche, datensparsame CV-Fassung
+assets/fonts/              Lokal ausgelieferte Webfonts
 css/style.css             Gesamtes Design
 js/main.js                 Mobile-Navigation, Footer-Jahr
+scripts/build_public_cv.py Reproduzierbarer CV-Build
 sitemap.xml, robots.txt
 ```
 
@@ -53,7 +56,7 @@ auch keine echte Nachricht.
 
 **Variante A — Drag & Drop (am schnellsten):**
 1. Bei [app.netlify.com](https://app.netlify.com) einloggen.
-2. Auf der Startseite den kompletten Projektordner (`F:\WebsiteSara`) per
+2. Auf der Startseite den kompletten Projektordner per
    Drag & Drop in den Upload-Bereich ziehen.
 3. Netlify erkennt das Kontaktformular (`<form name="contact" ...>`)
    automatisch beim Deploy und aktiviert Netlify Forms — keine weitere
@@ -71,26 +74,41 @@ auch keine echte Nachricht.
    auf `/` (Projekt-Root) setzen.
 4. Jeder Push auf den Hauptbranch deployt automatisch neu.
 
-### Eigene Domain (sara-hofmann.de) verbinden
+### Eigene Domain (sarahofmann.de) verbinden
 
 Unter *Site settings → Domain management → Add a domain* die Domain
-hinzufügen und Netlifys Anweisungen für die DNS-Einträge folgen.
+`sarahofmann.de` hinzufügen, als primäre Domain festlegen und Netlifys aktuell
+angezeigten Anweisungen für die DNS-Einträge beim Domainanbieter INWX folgen.
+`www.sarahofmann.de` wird auf die primäre Domain umgeleitet.
 
-⚠️ **Wichtig:** Beim Umstellen der DNS-Einträge (z. B. bei IONOS) **nur
-die A-/CNAME-Records auf Netlify umstellen**. Die **MX-Records
-(E-Mail-Zustellung) unbedingt unangetastet lassen**, sonst funktioniert
-der E-Mail-Empfang unter der Domain nicht mehr.
+**Wichtig:** DNS-Werte nicht aus älteren Anleitungen übernehmen, sondern die im
+konkreten Netlify-Projekt angezeigten Werte verwenden. Beim Umstellen nur die für
+Website und `www` erforderlichen A-/ALIAS-/CNAME-Einträge ändern. Vorhandene
+MX-Einträge für E-Mail bleiben unangetastet.
+
+Nach erfolgreicher DNS-Zuordnung stellt Netlify das TLS-Zertifikat automatisch
+bereit. Danach müssen HTTP-zu-HTTPS-Weiterleitung, Zertifikat für Hauptdomain und
+`www`, Formularversand sowie E-Mail-Benachrichtigung praktisch getestet werden.
+
+## Veröffentlichungscheckliste
+
+- Netlify-Projekt mit dem GitHub-Repository verbinden; kein Build-Command, Publish-Verzeichnis `/`.
+- Formularerkennung aktivieren und eine Benachrichtigung für neue Einsendungen einrichten.
+- Einen echten Testeintrag senden, Eingang prüfen und den Testeintrag danach löschen.
+- Formularübermittlungen regelmäßig prüfen und nach der in der Datenschutzerklärung festgelegten Frist löschen.
+- `sarahofmann.de` als primäre Domain festlegen und `www` auf die Hauptdomain umleiten.
+- Automatisches HTTPS abwarten und anschließend Zertifikat, Weiterleitungen und Sicherheitsheader prüfen.
+- Impressum, Datenschutz, AGB und Widerruf vor dem endgültigen Start fachanwaltlich prüfen lassen.
 
 ## Design-Entscheidungen
 
-- **Überschriften-Schrift:** `Cormorant Infant` — identisch zum Original,
-  frei über [Google Fonts](https://fonts.google.com/specimen/Cormorant+Infant)
-  verfügbar.
+- **Überschriften-Schrift:** `Cormorant Infant` — lokal unter `assets/fonts/`
+  gespeichert und ohne Verbindung zu Google ausgeliefert.
 - **Fließtext/UI-Schrift:** Das Original nutzt die kostenpflichtige
   Adobe-Schrift *Aktiv Grotesk Extended* (Typekit). Da diese nicht frei
   lizenzierbar ist, wurde sie durch **`Archivo`** ersetzt — eine freie
   Google-Font mit ähnlichem, breitem Grotesk-Charakter. Beide Schriften
-  werden über Google Fonts per `<link>` im `<head>` jeder Seite geladen.
+  werden lokal von dieser Website ausgeliefert.
 - **Farben:** Navy `#253551` (Akzentfarbe, Buttons, CV-Badge), Creme
   `#E0E0DB` (Info-Karten auf den Service-Seiten), Weiß/Schwarz für
   Hintergrund und Text — 1:1 aus der Live-Seite ausgelesen.

@@ -22,16 +22,44 @@ document.addEventListener("DOMContentLoaded", function () {
   var nav = document.querySelector(".main-nav");
 
   if (toggle && nav) {
+    var firstNavLink = nav.querySelector("a");
+
+    function closeNav(returnFocus) {
+      nav.classList.remove("is-open");
+      document.body.classList.remove("nav-open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Menü öffnen");
+      if (returnFocus) {
+        toggle.focus();
+      }
+    }
+
     toggle.addEventListener("click", function () {
       var isOpen = nav.classList.toggle("is-open");
       toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      toggle.setAttribute("aria-label", isOpen ? "Menü schließen" : "Menü öffnen");
+      document.body.classList.toggle("nav-open", isOpen);
+      if (isOpen && firstNavLink) {
+        firstNavLink.focus();
+      }
     });
 
     nav.querySelectorAll("a").forEach(function (link) {
       link.addEventListener("click", function () {
-        nav.classList.remove("is-open");
-        toggle.setAttribute("aria-expanded", "false");
+        closeNav(false);
       });
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && nav.classList.contains("is-open")) {
+        closeNav(true);
+      }
+    });
+
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 760 && nav.classList.contains("is-open")) {
+        closeNav(false);
+      }
     });
   }
 
@@ -78,89 +106,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  var prefersReducedMotion =
-    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var hasFinePointer = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
-  var enableMotionExtras = !prefersReducedMotion && hasFinePointer;
-
-  // 3D tilt effect on insight cards, following the cursor position.
-  if (enableMotionExtras) {
-    document.querySelectorAll(".insight-card").forEach(function (card) {
-      card.addEventListener("mouseenter", function () {
-        card.style.transition = "transform 0.15s ease-out";
-      });
-      card.addEventListener("mousemove", function (e) {
-        var rect = card.getBoundingClientRect();
-        var px = (e.clientX - rect.left) / rect.width;
-        var py = (e.clientY - rect.top) / rect.height;
-        var rotateY = (px - 0.5) * 8;
-        var rotateX = (0.5 - py) * 8;
-        card.style.transform =
-          "perspective(700px) rotateX(" + rotateX + "deg) rotateY(" + rotateY + "deg) scale(1.015)";
-      });
-      card.addEventListener("mouseleave", function () {
-        card.style.transition = "transform 0.35s ease";
-        card.style.transform = "";
-      });
-    });
-  }
-
-  // Sliding gradient underline that glides between nav links on hover.
-  (function () {
-    var navList = document.querySelector(".main-nav__list");
-    if (!navList || window.matchMedia("(max-width: 760px)").matches) {
-      return;
-    }
-
-    var indicator = document.createElement("span");
-    indicator.className = "nav-indicator";
-    navList.appendChild(indicator);
-
-    var currentLink = navList.querySelector('a[aria-current="page"]');
-
-    function moveIndicatorTo(link) {
-      if (!link) {
-        indicator.style.opacity = "0";
-        return;
-      }
-      indicator.style.left = link.offsetLeft + "px";
-      indicator.style.width = link.offsetWidth + "px";
-    }
-
-    navList.querySelectorAll("a").forEach(function (link) {
-      link.addEventListener("mouseenter", function () {
-        moveIndicatorTo(link);
-      });
-    });
-
-    navList.addEventListener("mouseleave", function () {
-      moveIndicatorTo(currentLink);
-    });
-
-    if (currentLink) {
-      requestAnimationFrame(function () {
-        moveIndicatorTo(currentLink);
-        indicator.classList.add("is-ready");
-      });
-    }
-  })();
-
-  // Thin reading-progress bar across the very top of the viewport.
-  (function () {
-    var bar = document.createElement("div");
-    bar.className = "scroll-progress";
-    bar.setAttribute("aria-hidden", "true");
-    document.body.appendChild(bar);
-
-    function updateProgress() {
-      var scrollTop = window.scrollY;
-      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      bar.style.width = pct + "%";
-    }
-
-    window.addEventListener("scroll", updateProgress, { passive: true });
-    window.addEventListener("resize", updateProgress);
-    updateProgress();
-  })();
 });

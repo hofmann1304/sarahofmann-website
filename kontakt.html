@@ -5,24 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kontakt — Sara Hofmann</title>
 <meta name="description" content="Kontaktiere Sara Hofmann für Consulting, Dozententätigkeit oder Nachhilfe. Schreib eine Nachricht über das Kontaktformular oder per E-Mail.">
-<link rel="canonical" href="https://www.sara-hofmann.de/kontakt">
+<link rel="canonical" href="https://sarahofmann.de/kontakt">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Kontakt — Sara Hofmann">
 <meta property="og:description" content="Kontaktiere Sara Hofmann für Consulting, Dozententätigkeit oder Nachhilfe. Schreib eine Nachricht über das Kontaktformular oder per E-Mail.">
-<meta property="og:url" content="https://www.sara-hofmann.de/kontakt">
-<meta property="og:image" content="https://www.sara-hofmann.de/assets/images/logo.png">
+<meta property="og:url" content="https://sarahofmann.de/kontakt">
+<meta property="og:image" content="https://sarahofmann.de/assets/images/logo.png">
 <meta property="og:locale" content="de_DE">
 <meta property="og:site_name" content="Sara Hofmann">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Kontakt — Sara Hofmann">
 <meta name="twitter:description" content="Kontaktiere Sara Hofmann für Consulting, Dozententätigkeit oder Nachhilfe. Schreib eine Nachricht über das Kontaktformular oder per E-Mail.">
-<meta name="twitter:image" content="https://www.sara-hofmann.de/assets/images/logo.png">
+<meta name="twitter:image" content="https://sarahofmann.de/assets/images/logo.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png">
 <link rel="apple-touch-icon" href="assets/images/favicon-180.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Cormorant+Infant:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -73,34 +70,35 @@
         </div>
       </div>
 
-      <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="danke.html">
+      <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/danke" aria-describedby="contact-privacy">
         <input type="hidden" name="form-name" value="contact">
-        <p class="honeypot-field">
-          <label>Nicht ausfüllen: <input name="bot-field"></label>
+        <p class="honeypot-field" aria-hidden="true">
+          <label>Nicht ausfüllen: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
         </p>
 
-        <h2 style="margin-bottom:0.6em;">Name</h2>
+        <h2 class="form-section-title">Name</h2>
         <div class="form-row">
           <div class="form-field">
             <label for="firstname">Vorname <span class="required">(erforderlich)</span></label>
-            <input type="text" id="firstname" name="firstname" required>
+            <input type="text" id="firstname" name="firstname" autocomplete="given-name" required>
           </div>
           <div class="form-field">
             <label for="lastname">Nachname <span class="required">(erforderlich)</span></label>
-            <input type="text" id="lastname" name="lastname" required>
+            <input type="text" id="lastname" name="lastname" autocomplete="family-name" required>
           </div>
         </div>
 
         <div class="form-field">
           <label for="email">E-Mail <span class="required">(erforderlich)</span></label>
-          <input type="email" id="email" name="email" required>
+          <input type="email" id="email" name="email" autocomplete="email" inputmode="email" required>
         </div>
 
         <div class="form-field">
           <label for="message">Nachricht <span class="required">(erforderlich)</span></label>
-          <textarea id="message" name="message" required></textarea>
+          <textarea id="message" name="message" maxlength="4000" required></textarea>
         </div>
 
+        <p class="form-privacy" id="contact-privacy">Mit dem Absenden werden Ihre Angaben zur Bearbeitung der Anfrage über Netlify verarbeitet. Bitte senden Sie keine vertraulichen Zugangsdaten. Weitere Informationen finden Sie in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
         <button type="submit" class="btn btn-solid">Senden</button>
       </form>
     </div>
@@ -121,6 +119,7 @@
       <li><a href="impressum.html">Impressum</a></li>
       <li><a href="datenschutz.html">Datenschutz</a></li>
       <li><a href="agb.html">Allgemeine Geschäftsbedingungen (AGB)</a></li>
+      <li><a href="widerruf.html">Widerruf</a></li>
     </ul>
     <p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p>
   </div>

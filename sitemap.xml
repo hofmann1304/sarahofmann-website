@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.sara-hofmann.de/</loc></url>
-  <url><loc>https://www.sara-hofmann.de/uebermich.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/consulting.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/dozententaetigkeit.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/nachhilfe.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/kontakt.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/insights.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/insights/3d-druck-in-der-robotik.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/insights/interdisziplinaeres-denken.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/insights/effektive-nachhilfe.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/insights/beruf-studium-balance.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/insights/matlab-simulink.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/impressum.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/datenschutz.html</loc></url>
-  <url><loc>https://www.sara-hofmann.de/agb.html</loc></url>
+  <url><loc>https://sarahofmann.de/</loc></url>
+  <url><loc>https://sarahofmann.de/uebermich</loc></url>
+  <url><loc>https://sarahofmann.de/consulting</loc></url>
+  <url><loc>https://sarahofmann.de/dozententaetigkeit</loc></url>
+  <url><loc>https://sarahofmann.de/nachhilfe</loc></url>
+  <url><loc>https://sarahofmann.de/kontakt</loc></url>
+  <url><loc>https://sarahofmann.de/insights</loc></url>
+  <url><loc>https://sarahofmann.de/insights/3d-druck-in-der-robotik</loc></url>
+  <url><loc>https://sarahofmann.de/insights/interdisziplinaeres-denken</loc></url>
+  <url><loc>https://sarahofmann.de/insights/effektive-nachhilfe</loc></url>
+  <url><loc>https://sarahofmann.de/insights/beruf-studium-balance</loc></url>
+  <url><loc>https://sarahofmann.de/insights/matlab-simulink</loc></url>
+  <url><loc>https://sarahofmann.de/impressum</loc></url>
+  <url><loc>https://sarahofmann.de/datenschutz</loc></url>
+  <url><loc>https://sarahofmann.de/agb</loc></url>
+  <url><loc>https://sarahofmann.de/widerruf</loc></url>
 </urlset>
