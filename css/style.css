@@ -666,9 +666,17 @@ section {
 }
 
 .form-privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   margin: -4px 0 24px;
   color: var(--color-text-muted);
   font-size: 0.9rem;
+}
+
+.form-privacy input {
+  flex: 0 0 auto;
+  margin-top: 0.25em;
 }
 
 .form-privacy a,

@@ -1,7 +1,6 @@
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
-import tomllib
 import xml.etree.ElementTree as ET
 
 
@@ -128,18 +127,17 @@ def main():
             f"nur Sitemap={sorted(sitemap_urls - canonical_urls)}, nur HTML={sorted(canonical_urls - sitemap_urls)}"
         )
 
-    config = tomllib.loads((ROOT / "netlify.toml").read_text(encoding="utf-8"))
-    header_values = [entry.get("values", {}) for entry in config.get("headers", []) if entry.get("for") == "/*"]
-    required_headers = {
-        "Content-Security-Policy",
-        "Referrer-Policy",
-        "Permissions-Policy",
-        "Strict-Transport-Security",
-        "X-Content-Type-Options",
-        "X-Frame-Options",
-    }
-    if not header_values or not required_headers.issubset(header_values[0]):
-        errors.append("netlify.toml: erforderliche Sicherheitsheader fehlen")
+    cname = (ROOT / "CNAME").read_text(encoding="utf-8").strip()
+    if cname != "sarahofmann.de":
+        errors.append("CNAME: erwartete GitHub-Pages-Domain sarahofmann.de fehlt")
+    if not (ROOT / ".nojekyll").exists():
+        errors.append(".nojekyll: Datei für die unveränderte statische Auslieferung fehlt")
+
+    contact_html = (ROOT / "kontakt.html").read_text(encoding="utf-8")
+    if 'action="https://form.taxi/s/' not in contact_html:
+        errors.append("kontakt.html: eigener Form.taxi-Endpunkt fehlt")
+    if "data-netlify" in contact_html or "netlify-honeypot" in contact_html:
+        errors.append("kontakt.html: veraltete Netlify-Formularattribute vorhanden")
 
     if errors:
         print("VERÖFFENTLICHUNGSCHECK FEHLGESCHLAGEN")

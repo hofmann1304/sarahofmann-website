@@ -1,4 +1,8 @@
-# Briefing: Nachbau sara-hofmann.de als statische Website
+# Historisches Briefing: Nachbau sara-hofmann.de als statische Website
+
+> **Archivhinweis:** Dieses Dokument beschreibt die ursprüngliche Vorgabe des
+> übernommenen Website-Entwurfs. Die aktuelle Veröffentlichung läuft über
+> GitHub Pages und Form.taxi. Maßgeblich ist die `README.md`.
 
 ## Ziel
 Die bestehende Squarespace-Website **https://www.sara-hofmann.de/** soll als eigenständige, statische HTML/CSS/JS-Website nachgebaut werden — ohne laufende Squarespace-Kosten, voll portierbar, hostbar auf Netlify (oder jedem anderen statischen Hoster).

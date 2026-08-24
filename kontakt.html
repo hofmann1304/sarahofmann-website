@@ -70,10 +70,12 @@
         </div>
       </div>
 
-      <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/danke" aria-describedby="contact-privacy">
-        <input type="hidden" name="form-name" value="contact">
+      <form name="contact" method="POST" action="https://form.taxi/s/3retq47d" aria-describedby="contact-privacy">
+        <input type="hidden" name="_subject" value="Neue Anfrage über sarahofmann.de">
+        <input type="hidden" name="_next" value="https://sarahofmann.de/danke.html">
+        <input type="hidden" name="_lang" value="de">
         <p class="honeypot-field" aria-hidden="true">
-          <label>Nicht ausfüllen: <input name="bot-field" tabindex="-1" autocomplete="off"></label>
+          <label>Nicht ausfüllen: <input name="_gotcha" tabindex="-1" autocomplete="off"></label>
         </p>
 
         <h2 class="form-section-title">Name</h2>
@@ -98,7 +100,10 @@
           <textarea id="message" name="message" maxlength="4000" required></textarea>
         </div>
 
-        <p class="form-privacy" id="contact-privacy">Mit dem Absenden werden Ihre Angaben zur Bearbeitung der Anfrage über Netlify verarbeitet. Bitte senden Sie keine vertraulichen Zugangsdaten. Weitere Informationen finden Sie in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+        <label class="form-privacy" id="contact-privacy">
+          <input name="Datenschutzhinweise" type="checkbox" value="zur Kenntnis genommen" required>
+          <span>Ich habe die <a href="datenschutz.html">Datenschutzhinweise</a> zur Verarbeitung meiner Anfrage über Form.taxi zur Kenntnis genommen. Bitte senden Sie keine vertraulichen Zugangsdaten. <span class="required">(erforderlich)</span></span>
+        </label>
         <button type="submit" class="btn btn-solid">Senden</button>
       </form>
     </div>
