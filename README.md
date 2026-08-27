@@ -21,7 +21,7 @@ datenschutz.html        Datenschutzerklärung
 agb.html                Allgemeine Geschäftsbedingungen
 widerruf.html           Widerrufsbelehrung
 404.html                Eigene Fehlerseite
-assets/                 Bilder, Schriftarten und öffentliche CV-Fassung
+assets/                 Bilder und Schriftarten; die öffentliche CV-Fassung folgt nach der Aktualisierung
 css/style.css           Design
 js/main.js              Navigation und dynamisches Footer-Jahr
 scripts/                Prüf- und CV-Buildskripte

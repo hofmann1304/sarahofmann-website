@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ORIGIN = "https://sarahofmann.de"
-NOINDEX_FILES = {"404.html", "danke.html"}
+NOINDEX_FILES = {"404.html", "danke.html", "lebenslauf.html"}
 
 
 class PageParser(HTMLParser):
