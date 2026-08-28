@@ -1,12 +1,34 @@
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
+import json
+import re
 import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ORIGIN = "https://sarahofmann.de"
-NOINDEX_FILES = {"404.html", "danke.html", "lebenslauf.html"}
+NOINDEX_FILES = {
+    "404.html",
+    "agb.html",
+    "danke.html",
+    "datenschutz.html",
+    "impressum.html",
+    "lebenslauf.html",
+    "widerruf.html",
+}
+STRUCTURED_DATA_FILES = {
+    "index.html",
+    "uebermich.html",
+    "consulting.html",
+    "dozententaetigkeit.html",
+    "nachhilfe.html",
+    "insights/3d-druck-in-der-robotik.html",
+    "insights/beruf-studium-balance.html",
+    "insights/effektive-nachhilfe.html",
+    "insights/interdisziplinaeres-denken.html",
+    "insights/matlab-simulink.html",
+}
 
 
 class PageParser(HTMLParser):
@@ -17,6 +39,8 @@ class PageParser(HTMLParser):
         self.missing_alt = []
         self.blank_without_rel = []
         self.canonicals = []
+        self.descriptions = []
+        self.robots = []
         self.external_resources = []
         self.h1_count = 0
         self.style_attributes = 0
@@ -36,9 +60,16 @@ class PageParser(HTMLParser):
         if attr.get("target") == "_blank" and "noopener" not in attr.get("rel", "").split():
             self.blank_without_rel.append(attr.get("href", "<ohne href>"))
         if tag == "script":
-            self.in_script_without_src = "src" not in attr
+            self.in_script_without_src = (
+                "src" not in attr
+                and attr.get("type", "").lower() != "application/ld+json"
+            )
         if tag == "link" and "canonical" in attr.get("rel", "").split():
             self.canonicals.append(attr.get("href", ""))
+        if tag == "meta" and attr.get("name", "").lower() == "description":
+            self.descriptions.append(attr.get("content", ""))
+        if tag == "meta" and attr.get("name", "").lower() == "robots":
+            self.robots.append(attr.get("content", "").lower())
 
         ref_attr = {"a": "href", "img": "src", "script": "src", "link": "href", "form": "action"}.get(tag)
         if ref_attr and attr.get(ref_attr):
@@ -67,24 +98,51 @@ def local_target(page, value):
         return None
     target = (ROOT / raw_path.lstrip("/")) if raw_path.startswith("/") else (page.parent / raw_path)
     target = target.resolve()
+    # GitHub Pages serves extensionless URLs from the matching .html file.
+    # Check that variant before treating a same-named asset directory as an
+    # index directory (for example /insights -> insights.html).
+    if not Path(raw_path).suffix and target.with_suffix(".html").exists():
+        return target.with_suffix(".html")
     if target.is_dir():
         target = target / "index.html"
     if target.exists():
         return target
-    if not target.suffix and target.with_suffix(".html").exists():
-        return target.with_suffix(".html")
     return target
 
 
 def main():
     errors = []
     canonical_urls = set()
+    indexable_titles = {}
+    indexable_descriptions = {}
     html_files = sorted(ROOT.rglob("*.html"))
 
     for page in html_files:
+        html_text = page.read_text(encoding="utf-8")
         parser = PageParser()
-        parser.feed(page.read_text(encoding="utf-8"))
+        parser.feed(html_text)
         rel = page.relative_to(ROOT).as_posix()
+
+        titles = [" ".join(title.split()) for title in re.findall(
+            r"<title>(.*?)</title>", html_text, flags=re.IGNORECASE | re.DOTALL
+        )]
+        if len(titles) != 1 or not titles[0]:
+            errors.append(f"{rel}: genau ein nicht-leerer Seitentitel erwartet")
+        if len(parser.descriptions) != 1 or not parser.descriptions[0].strip():
+            errors.append(f"{rel}: genau eine nicht-leere Meta-Beschreibung erwartet")
+
+        json_ld_blocks = re.findall(
+            r'<script\b[^>]*type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
+            html_text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        for block in json_ld_blocks:
+            try:
+                json.loads(block)
+            except json.JSONDecodeError as exc:
+                errors.append(f"{rel}: ungültiges JSON-LD ({exc.msg})")
+        if rel in STRUCTURED_DATA_FILES and not json_ld_blocks:
+            errors.append(f"{rel}: erwartete strukturierte Daten fehlen")
 
         if parser.h1_count != 1:
             errors.append(f"{rel}: genau eine H1 erwartet, gefunden {parser.h1_count}")
@@ -103,20 +161,48 @@ def main():
             errors.append(f"{rel}: externe aktive Ressource {parser.external_resources}")
 
         if rel in NOINDEX_FILES:
+            if not any("noindex" in value for value in parser.robots):
+                errors.append(f"{rel}: erwartete noindex-Anweisung fehlt")
             if parser.canonicals:
                 errors.append(f"{rel}: Noindex-Seite darf keine Canonical-URL erhalten")
         else:
+            if any("noindex" in value for value in parser.robots):
+                errors.append(f"{rel}: indexierbare Seite enthält noindex")
             if len(parser.canonicals) != 1:
                 errors.append(f"{rel}: genau eine Canonical-URL erwartet")
             elif not parser.canonicals[0].startswith(PUBLIC_ORIGIN):
                 errors.append(f"{rel}: Canonical verweist nicht auf {PUBLIC_ORIGIN}")
             else:
                 canonical_urls.add(parser.canonicals[0])
+            if len(titles) == 1:
+                indexable_titles.setdefault(titles[0], []).append(rel)
+            if len(parser.descriptions) == 1:
+                indexable_descriptions.setdefault(parser.descriptions[0], []).append(rel)
+
+        if rel.startswith("insights/"):
+            if 'rel="author"' not in html_text:
+                errors.append(f"{rel}: verlinkte Autorenangabe fehlt")
+            if "<time " not in html_text or "datetime=" not in html_text:
+                errors.append(f"{rel}: maschinenlesbares Veröffentlichungsdatum fehlt")
 
         for tag, value in parser.refs:
+            parsed_ref = urlparse(value)
+            if (
+                tag == "a"
+                and not parsed_ref.scheme
+                and parsed_ref.path.endswith(".html")
+            ):
+                errors.append(f"{rel}: interner Link verwendet .html statt Canonical-Pfad ({value})")
             target = local_target(page, value)
             if target is not None and not target.exists():
                 errors.append(f"{rel}: fehlendes lokales Ziel für {tag}={value}")
+
+    for title, pages in indexable_titles.items():
+        if len(pages) > 1:
+            errors.append(f"doppelter Seitentitel in {pages}: {title}")
+    for description, pages in indexable_descriptions.items():
+        if len(pages) > 1:
+            errors.append(f"doppelte Meta-Beschreibung in {pages}")
 
     sitemap = ET.parse(ROOT / "sitemap.xml")
     namespace = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
@@ -132,6 +218,12 @@ def main():
         errors.append("CNAME: erwartete GitHub-Pages-Domain sarahofmann.de fehlt")
     if not (ROOT / ".nojekyll").exists():
         errors.append(".nojekyll: Datei für die unveränderte statische Auslieferung fehlt")
+
+    robots_text = (ROOT / "robots.txt").read_text(encoding="utf-8")
+    if "Sitemap: https://sarahofmann.de/sitemap.xml" not in robots_text:
+        errors.append("robots.txt: Sitemap-Verweis fehlt")
+    if re.search(r"^\s*Disallow:\s*/(?:danke|lebenslauf)", robots_text, flags=re.MULTILINE):
+        errors.append("robots.txt: Noindex-Seite darf nicht vom Crawling ausgeschlossen werden")
 
     contact_html = (ROOT / "kontakt.html").read_text(encoding="utf-8")
     if 'action="https://form.taxi/s/' not in contact_html:

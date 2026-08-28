@@ -30,6 +30,27 @@ CNAME                   GitHub-Pages-Domain `sarahofmann.de`
 sitemap.xml, robots.txt Suchmaschinen-Metadaten
 ```
 
+## Suchmaschinenoptimierung
+
+Die Website verwendet ausschließlich die sauberen, endungslosen URLs als
+interne Ziele, Canonical-URLs und Sitemap-Einträge. Indexierbar sind die
+Startseite, Profil- und Leistungsseiten, Kontakt, Insights-Übersicht und fünf
+Fachartikel. Fehler-, Bestätigungs-, CV-Wartungs- und Rechtstextseiten tragen
+`noindex` und stehen nicht in der Sitemap.
+
+Strukturierte Daten kennzeichnen:
+
+- Website und freiberufliches Unternehmen auf der Startseite,
+- Sara Hofmann als Person auf der Über-mich-Seite,
+- die drei Angebote als Leistungen,
+- Fachartikel mit Autorin, Veröffentlichungsdatum und Titelbild.
+
+Nach Veröffentlichung muss `https://sarahofmann.de/sitemap.xml` in der Google
+Search Console eingereicht und die Indexierung beobachtet werden. Die frühere
+Domain `sara-hofmann.de` sollte serverseitig per permanentem 301-Redirect auf
+die jeweils passende URL unter `sarahofmann.de` weiterleiten. Ein bloßer Link
+oder eine JavaScript-Weiterleitung ersetzt diese Migration nicht.
+
 ## Lokal testen
 
 Die Seite kann direkt über `index.html` geöffnet werden. Für realistische
