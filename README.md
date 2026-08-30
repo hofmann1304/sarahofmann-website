@@ -34,7 +34,7 @@ sitemap.xml, robots.txt Suchmaschinen-Metadaten
 
 Die Website verwendet ausschließlich die sauberen, endungslosen URLs als
 interne Ziele, Canonical-URLs und Sitemap-Einträge. Indexierbar sind die
-Startseite, Profil- und Leistungsseiten, Kontakt, Insights-Übersicht und fünf
+Startseite, Profil- und Leistungsseiten, Kontakt, Insights-Übersicht und sechs
 Fachartikel. Fehler-, Bestätigungs-, CV-Wartungs- und Rechtstextseiten tragen
 `noindex` und stehen nicht in der Sitemap.
 
