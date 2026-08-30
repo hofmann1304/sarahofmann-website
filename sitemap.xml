@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://sarahofmann.de/</loc><lastmod>2026-08-29</lastmod></url>
+  <url><loc>https://sarahofmann.de/</loc><lastmod>2026-08-30</lastmod></url>
   <url><loc>https://sarahofmann.de/uebermich</loc><lastmod>2026-08-29</lastmod></url>
   <url><loc>https://sarahofmann.de/consulting</loc><lastmod>2026-08-29</lastmod></url>
   <url><loc>https://sarahofmann.de/dozententaetigkeit</loc></url>
   <url><loc>https://sarahofmann.de/nachhilfe</loc></url>
   <url><loc>https://sarahofmann.de/kontakt</loc></url>
-  <url><loc>https://sarahofmann.de/insights</loc></url>
+  <url><loc>https://sarahofmann.de/insights</loc><lastmod>2026-08-30</lastmod></url>
+  <url><loc>https://sarahofmann.de/insights/knowledge-graphs-industrielle-bildverarbeitung</loc><lastmod>2026-08-30</lastmod></url>
   <url><loc>https://sarahofmann.de/insights/3d-druck-in-der-robotik</loc></url>
   <url><loc>https://sarahofmann.de/insights/interdisziplinaeres-denken</loc></url>
   <url><loc>https://sarahofmann.de/insights/effektive-nachhilfe</loc></url>

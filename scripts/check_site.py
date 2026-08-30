@@ -27,6 +27,7 @@ STRUCTURED_DATA_FILES = {
     "insights/beruf-studium-balance.html",
     "insights/effektive-nachhilfe.html",
     "insights/interdisziplinaeres-denken.html",
+    "insights/knowledge-graphs-industrielle-bildverarbeitung.html",
     "insights/matlab-simulink.html",
 }
 
