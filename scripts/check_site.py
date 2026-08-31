@@ -27,6 +27,7 @@ STRUCTURED_DATA_FILES = {
     "consulting.html",
     "dozententaetigkeit.html",
     "nachhilfe.html",
+    "industrielle-bildverarbeitung-python.html",
     "insights/3d-druck-in-der-robotik.html",
     "insights/beruf-studium-balance.html",
     "insights/effektive-nachhilfe.html",
@@ -38,6 +39,7 @@ STRUCTURED_DATA_FILES = {
     "en/consulting.html",
     "en/lecturing.html",
     "en/tutoring.html",
+    "en/industrial-machine-vision-python.html",
     "en/insights/knowledge-graphs-industrial-machine-vision.html",
 }
 
