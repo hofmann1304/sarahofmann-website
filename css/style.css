@@ -234,20 +234,35 @@ p {
   flex-shrink: 0;
 }
 
-.lang-picker {
+.lang-switcher {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 0.95rem;
   color: var(--color-black);
-  border: none;
-  background: none;
-  cursor: default;
 }
 
-.lang-picker svg {
+.lang-switcher svg {
   width: 16px;
   height: 16px;
+}
+
+.lang-switcher a {
+  padding: 4px 2px;
+  border-bottom: 1px solid transparent;
+}
+
+.lang-switcher a:hover,
+.lang-switcher a[aria-current="page"] {
+  border-color: var(--color-navy);
+}
+
+.lang-switcher a[aria-current="page"] {
+  font-weight: 700;
+}
+
+.lang-switcher span {
+  color: var(--color-text-muted);
 }
 
 .cv-badge {
@@ -1126,6 +1141,10 @@ section {
 
   .site-header__inner {
     padding: 10px 20px;
+  }
+
+  .header-actions {
+    gap: 12px;
   }
 
   .brand img {

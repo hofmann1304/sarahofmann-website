@@ -16,6 +16,8 @@ NOINDEX_FILES = {
     "impressum.html",
     "lebenslauf.html",
     "widerruf.html",
+    "en/cv.html",
+    "en/thank-you.html",
 }
 STRUCTURED_DATA_FILES = {
     "index.html",
@@ -29,6 +31,12 @@ STRUCTURED_DATA_FILES = {
     "insights/interdisziplinaeres-denken.html",
     "insights/knowledge-graphs-industrielle-bildverarbeitung.html",
     "insights/matlab-simulink.html",
+    "en/index.html",
+    "en/about.html",
+    "en/consulting.html",
+    "en/lecturing.html",
+    "en/tutoring.html",
+    "en/insights/knowledge-graphs-industrial-machine-vision.html",
 }
 
 
@@ -43,6 +51,10 @@ class PageParser(HTMLParser):
         self.descriptions = []
         self.robots = []
         self.external_resources = []
+        self.html_languages = []
+        self.main_nav_depth = 0
+        self.header_insight_links = []
+        self.language_switchers = 0
         self.h1_count = 0
         self.style_attributes = 0
         self.inline_script = False
@@ -50,6 +62,14 @@ class PageParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attr = dict(attrs)
+        if tag == "html":
+            self.html_languages.append(attr.get("lang", ""))
+        if tag == "nav" and "main-nav" in attr.get("class", "").split():
+            self.main_nav_depth += 1
+        if "lang-switcher" in attr.get("class", "").split():
+            self.language_switchers += 1
+        if tag == "a" and self.main_nav_depth and attr.get("href") in {"/insights", "/en/insights"}:
+            self.header_insight_links.append(attr["href"])
         if "id" in attr:
             self.ids.append(attr["id"])
         if "style" in attr:
@@ -82,6 +102,8 @@ class PageParser(HTMLParser):
                     self.external_resources.append(value)
 
     def handle_endtag(self, tag):
+        if tag == "nav":
+            self.main_nav_depth = max(0, self.main_nav_depth - 1)
         if tag == "script":
             self.in_script_without_src = False
 
@@ -147,6 +169,17 @@ def main():
 
         if parser.h1_count != 1:
             errors.append(f"{rel}: genau eine H1 erwartet, gefunden {parser.h1_count}")
+        expected_language = "en" if rel.startswith("en/") else "de"
+        if parser.html_languages != [expected_language]:
+            errors.append(
+                f"{rel}: HTML-Sprache muss genau {expected_language} sein, gefunden {parser.html_languages}"
+            )
+        if parser.language_switchers != 1:
+            errors.append(f"{rel}: genau eine DE/EN-Sprachauswahl erwartet")
+        if parser.header_insight_links:
+            errors.append(f"{rel}: Insights darf nicht in der Hauptnavigation stehen")
+        if "favicon-v2-32.png" not in html_text or "favicon-v2-16.png" not in html_text:
+            errors.append(f"{rel}: neues transparentes Favicon fehlt")
         duplicate_ids = sorted({item for item in parser.ids if parser.ids.count(item) > 1})
         if duplicate_ids:
             errors.append(f"{rel}: doppelte IDs {duplicate_ids}")
