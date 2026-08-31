@@ -17,10 +17,10 @@
 <meta name="twitter:title" content="Datenschutzerklärung — Sara Hofmann">
 <meta name="twitter:description" content="Datenschutzerklärung von Sara Hofmann für Website, Hosting und Kontaktformular.">
 <meta name="twitter:image" content="https://sarahofmann.de/assets/images/logo.png">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png">
-<link rel="apple-touch-icon" href="assets/images/favicon-180.png">
-<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="css/style.css?v=20260830">
 </head>
 <body>
 <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -32,7 +32,6 @@
     </a>
     <nav class="main-nav" id="main-nav">
       <ul class="main-nav__list">
-        <li><a href="/insights">Insights</a></li>
         <li><a href="/uebermich">Über mich</a></li>
         <li><a href="/consulting">Consulting</a></li>
         <li><a href="/dozententaetigkeit">Dozententätigkeit</a></li>
@@ -41,10 +40,12 @@
       </ul>
     </nav>
     <div class="header-actions">
-      <div class="lang-picker">
+      <nav class="lang-switcher" aria-label="Sprache wählen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
-        Deutsch
-      </div>
+        <a href="/datenschutz" lang="de" hreflang="de" aria-current="page">DE</a>
+        <span aria-hidden="true">/</span>
+        <a href="/en/" lang="en" hreflang="en">EN</a>
+      </nav>
       <a class="cv-badge" href="/lebenslauf" aria-label="Lebenslauf – wird aktualisiert">CV</a>
       <button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="main-nav">
         <span></span><span></span><span></span>
@@ -83,8 +84,11 @@
     <p><strong>Speicherdauer:</strong> Reine Anfragen ohne anschließendes Vertragsverhältnis werden grundsätzlich spätestens sechs Monate nach abschließender Bearbeitung gelöscht. Entsteht ein Vertragsverhältnis oder ist eine weitere Aufbewahrung zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen oder aufgrund gesetzlicher Pflichten erforderlich, erfolgt die Löschung nach Wegfall des jeweiligen Zwecks beziehungsweise nach Ablauf der gesetzlichen Fristen. Formulareinträge bei Form.taxi werden regelmäßig geprüft und entsprechend gelöscht.</p>
     <p>Bitte übermitteln Sie über das freie Nachrichtenfeld keine besonderen Kategorien personenbezogener Daten und keine vertraulichen Zugangsdaten.</p>
 
-    <h2>4. Cookies, Analyse und externe Schriftarten</h2>
-    <p>Diese Website setzt nach dem derzeitigen technischen Stand keine Analyse-, Marketing- oder Trackingdienste ein. Es werden keine nicht notwendigen Cookies durch den Website-Code gesetzt. Die verwendeten Schriftarten liegen auf dem eigenen Webspeicher; beim Seitenaufruf wird deshalb keine Verbindung zu Google Fonts hergestellt. Ein Einwilligungsbanner ist für diese technisch reduzierte Konfiguration nicht erforderlich.</p>
+    <h2>4. Reichweitenmessung mit Cloudflare Web Analytics</h2>
+    <p>Diese Website nutzt Cloudflare Web Analytics, einen Dienst der Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, USA. Der eingebundene JavaScript-Beacon liefert zusammengefasste Angaben zu Seitenaufrufen, Besuchen, aufgerufenen Seiten, Herkunftsseiten, Ländern, verwendeten Geräten und zur Ladeleistung. Dadurch können wir erkennen, welche Inhalte genutzt werden und wo technische Verbesserungen erforderlich sind.</p>
+    <p>Nach Angaben von Cloudflare werden dabei keine einzelnen Besucher über Websites hinweg verfolgt, keine Besucherprofile gebildet und keine Cookies, <code>localStorage</code> oder vergleichbare Browser-Speicher für die Reichweitenmessung verwendet. Die bei der technischen Übertragung anfallende IP-Adresse wird laut Anbieter am nächstgelegenen Cloudflare-Rechenzentrum verworfen und nicht in den zentralen Analyseprotokollen gespeichert. Weitere technische Angaben finden Sie in der <a href="https://developers.cloudflare.com/web-analytics/data-metrics/data-origin-and-collection/" target="_blank" rel="noopener">Dokumentation von Cloudflare Web Analytics</a>; ergänzend gilt die <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Datenschutzerklärung von Cloudflare</a>.</p>
+    <p><strong>Zweck und Rechtsgrundlage:</strong> Die Verarbeitung dient unserem berechtigten Interesse an einer datensparsamen, zusammengefassten Reichweiten- und Leistungsanalyse, Art. 6 Abs. 1 lit. f DSGVO, soweit bei der technischen Übertragung personenbezogene Daten verarbeitet werden. Da die eingesetzte Konfiguration keine nicht notwendigen Cookies oder vergleichbare Browser-Speicher setzt und keine individuellen Besucherprofile erstellt, wird hierfür derzeit kein Einwilligungsbanner eingesetzt. Browser-Erweiterungen oder andere Schutzmechanismen können den Analyse-Beacon blockieren; dadurch können die angezeigten Werte niedriger als die tatsächlichen Aufrufzahlen sein.</p>
+    <p>Die verwendeten Schriftarten liegen weiterhin auf dem eigenen Webspeicher; beim Seitenaufruf wird keine Verbindung zu Google Fonts hergestellt. Marketing- oder Werbetracker werden nicht eingesetzt.</p>
 
     <h2>5. Externe Links</h2>
     <p>Die Website enthält Links zu externen Angeboten, beispielsweise Xing. Erst wenn Sie einen solchen Link aufrufen, verarbeitet der jeweilige Anbieter Daten in eigener Verantwortung. Es gelten dann die Datenschutzhinweise des jeweiligen Anbieters.</p>
@@ -96,7 +100,7 @@
     <h2>7. Pflicht zur Bereitstellung und automatisierte Entscheidungen</h2>
     <p>Die Bereitstellung von Kontaktangaben ist weder gesetzlich noch vertraglich vorgeschrieben. Ohne eine erreichbare Kontaktmöglichkeit können wir Ihre Anfrage jedoch nicht beantworten. Eine automatisierte Entscheidungsfindung einschließlich Profiling findet nicht statt.</p>
 
-    <p class="notice"><strong>Hinweis:</strong> Diese Erklärung beschreibt den vorgesehenen Betrieb über GitHub Pages und Form.taxi ohne Analyse- oder Marketingwerkzeuge. Werden später weitere Dienste eingebunden, muss die Erklärung vor deren Aktivierung angepasst werden.</p>
+    <p class="notice"><strong>Hinweis:</strong> Diese Erklärung beschreibt den vorgesehenen Betrieb über GitHub Pages, Form.taxi und Cloudflare Web Analytics ohne Marketing- oder Werbetracker. Werden später weitere Dienste eingebunden, muss die Erklärung vor deren Aktivierung angepasst werden.</p>
   </div>
 </main>
 
@@ -120,6 +124,7 @@
   </div>
 </footer>
 
-<script src="js/main.js"></script>
+<script src="js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

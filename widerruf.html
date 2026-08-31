@@ -17,10 +17,10 @@
 <meta name="twitter:title" content="Widerrufsbelehrung — Sara Hofmann">
 <meta name="twitter:description" content="Widerrufsbelehrung und Muster-Widerrufsformular für Verbraucher.">
 <meta name="twitter:image" content="https://sarahofmann.de/assets/images/logo.png">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png">
-<link rel="apple-touch-icon" href="assets/images/favicon-180.png">
-<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="css/style.css?v=20260830">
 </head>
 <body>
 <a class="skip-link" href="#main">Zum Inhalt springen</a>
@@ -32,7 +32,6 @@
     </a>
     <nav class="main-nav" id="main-nav">
       <ul class="main-nav__list">
-        <li><a href="/insights">Insights</a></li>
         <li><a href="/uebermich">Über mich</a></li>
         <li><a href="/consulting">Consulting</a></li>
         <li><a href="/dozententaetigkeit">Dozententätigkeit</a></li>
@@ -41,10 +40,12 @@
       </ul>
     </nav>
     <div class="header-actions">
-      <div class="lang-picker">
+      <nav class="lang-switcher" aria-label="Sprache wählen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
-        Deutsch
-      </div>
+        <a href="/widerruf" lang="de" hreflang="de" aria-current="page">DE</a>
+        <span aria-hidden="true">/</span>
+        <a href="/en/" lang="en" hreflang="en">EN</a>
+      </nav>
       <a class="cv-badge" href="/lebenslauf" aria-label="Lebenslauf – wird aktualisiert">CV</a>
       <button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="main-nav">
         <span></span><span></span><span></span>
@@ -120,6 +121,7 @@
   </div>
 </footer>
 
-<script src="js/main.js"></script>
+<script src="js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

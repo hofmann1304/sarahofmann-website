@@ -7,6 +7,9 @@
 <meta name="description" content="Sara Hofmann verbindet technische Beratung, industrielle Bildverarbeitung mit Python, Knowledge Graphs, Hochschullehre und Mathematik-Nachhilfe.">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://sarahofmann.de/">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Technische Beratung, Lehre &amp; Nachhilfe | Sara Hofmann">
 <meta property="og:description" content="Technische Beratung, industrielle Bildverarbeitung mit Python, Knowledge Graphs, Hochschullehre und Mathematik-Nachhilfe.">
@@ -20,10 +23,10 @@
 <meta name="twitter:description" content="Technische Beratung, industrielle Bildverarbeitung mit Python, Knowledge Graphs, Hochschullehre und Mathematik-Nachhilfe.">
 <meta name="twitter:image" content="https://sarahofmann.de/assets/images/logo.png">
 <meta name="twitter:image:alt" content="Logo von Sara Hofmann – Freelance Engineer &amp; Consultant">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png">
-<link rel="apple-touch-icon" href="assets/images/favicon-180.png">
-<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="css/style.css?v=20260830">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -77,7 +80,6 @@
     </a>
     <nav class="main-nav" id="main-nav">
       <ul class="main-nav__list">
-        <li><a href="/insights">Insights</a></li>
         <li><a href="/uebermich">Über mich</a></li>
         <li><a href="/consulting">Consulting</a></li>
         <li><a href="/dozententaetigkeit">Dozententätigkeit</a></li>
@@ -86,10 +88,12 @@
       </ul>
     </nav>
     <div class="header-actions">
-      <div class="lang-picker">
+      <nav class="lang-switcher" aria-label="Sprache wählen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
-        Deutsch
-      </div>
+        <a href="/" lang="de" hreflang="de" aria-current="page">DE</a>
+        <span aria-hidden="true">/</span>
+        <a href="/en/" lang="en" hreflang="en">EN</a>
+      </nav>
       <a class="cv-badge" href="/lebenslauf" aria-label="Lebenslauf – wird aktualisiert">CV</a>
       <button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="main-nav">
         <span></span><span></span><span></span>
@@ -240,6 +244,7 @@
   </div>
 </footer>
 
-<script src="js/main.js"></script>
+<script src="js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

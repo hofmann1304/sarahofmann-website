@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var toggle = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".main-nav");
+  var isEnglish = document.documentElement.lang.toLowerCase().startsWith("en");
+  var menuLabels = isEnglish
+    ? { open: "Open menu", close: "Close menu" }
+    : { open: "Menü öffnen", close: "Menü schließen" };
 
   if (toggle && nav) {
     var firstNavLink = nav.querySelector("a");
@@ -28,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
       nav.classList.remove("is-open");
       document.body.classList.remove("nav-open");
       toggle.setAttribute("aria-expanded", "false");
-      toggle.setAttribute("aria-label", "Menü öffnen");
+      toggle.setAttribute("aria-label", menuLabels.open);
       if (returnFocus) {
         toggle.focus();
       }
@@ -37,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
     toggle.addEventListener("click", function () {
       var isOpen = nav.classList.toggle("is-open");
       toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-      toggle.setAttribute("aria-label", isOpen ? "Menü schließen" : "Menü öffnen");
+      toggle.setAttribute("aria-label", isOpen ? menuLabels.close : menuLabels.open);
       document.body.classList.toggle("nav-open", isOpen);
       if (isOpen && firstNavLink) {
         firstNavLink.focus();

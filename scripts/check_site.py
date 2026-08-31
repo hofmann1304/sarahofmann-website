@@ -8,6 +8,8 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_ORIGIN = "https://sarahofmann.de"
+CLOUDFLARE_ANALYTICS_SRC = "https://static.cloudflareinsights.com/beacon.min.js"
+CLOUDFLARE_ANALYTICS_TOKEN = "4eafad2b955d48a8a7260434095148f2"
 NOINDEX_FILES = {
     "404.html",
     "agb.html",
@@ -16,6 +18,8 @@ NOINDEX_FILES = {
     "impressum.html",
     "lebenslauf.html",
     "widerruf.html",
+    "en/cv.html",
+    "en/thank-you.html",
 }
 STRUCTURED_DATA_FILES = {
     "index.html",
@@ -29,6 +33,12 @@ STRUCTURED_DATA_FILES = {
     "insights/interdisziplinaeres-denken.html",
     "insights/knowledge-graphs-industrielle-bildverarbeitung.html",
     "insights/matlab-simulink.html",
+    "en/index.html",
+    "en/about.html",
+    "en/consulting.html",
+    "en/lecturing.html",
+    "en/tutoring.html",
+    "en/insights/knowledge-graphs-industrial-machine-vision.html",
 }
 
 
@@ -43,6 +53,11 @@ class PageParser(HTMLParser):
         self.descriptions = []
         self.robots = []
         self.external_resources = []
+        self.html_languages = []
+        self.main_nav_depth = 0
+        self.header_insight_links = []
+        self.language_switchers = 0
+        self.cloudflare_analytics = []
         self.h1_count = 0
         self.style_attributes = 0
         self.inline_script = False
@@ -50,6 +65,14 @@ class PageParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attr = dict(attrs)
+        if tag == "html":
+            self.html_languages.append(attr.get("lang", ""))
+        if tag == "nav" and "main-nav" in attr.get("class", "").split():
+            self.main_nav_depth += 1
+        if "lang-switcher" in attr.get("class", "").split():
+            self.language_switchers += 1
+        if tag == "a" and self.main_nav_depth and attr.get("href") in {"/insights", "/en/insights"}:
+            self.header_insight_links.append(attr["href"])
         if "id" in attr:
             self.ids.append(attr["id"])
         if "style" in attr:
@@ -61,6 +84,11 @@ class PageParser(HTMLParser):
         if attr.get("target") == "_blank" and "noopener" not in attr.get("rel", "").split():
             self.blank_without_rel.append(attr.get("href", "<ohne href>"))
         if tag == "script":
+            if attr.get("src") == CLOUDFLARE_ANALYTICS_SRC:
+                self.cloudflare_analytics.append({
+                    "type": attr.get("type", ""),
+                    "config": attr.get("data-cf-beacon", ""),
+                })
             self.in_script_without_src = (
                 "src" not in attr
                 and attr.get("type", "").lower() != "application/ld+json"
@@ -78,10 +106,15 @@ class PageParser(HTMLParser):
             self.refs.append((tag, value))
             parsed = urlparse(value)
             if parsed.scheme in {"http", "https"} and tag in {"img", "script", "link"}:
-                if not value.startswith(PUBLIC_ORIGIN):
+                if (
+                    not value.startswith(PUBLIC_ORIGIN)
+                    and value != CLOUDFLARE_ANALYTICS_SRC
+                ):
                     self.external_resources.append(value)
 
     def handle_endtag(self, tag):
+        if tag == "nav":
+            self.main_nav_depth = max(0, self.main_nav_depth - 1)
         if tag == "script":
             self.in_script_without_src = False
 
@@ -147,6 +180,29 @@ def main():
 
         if parser.h1_count != 1:
             errors.append(f"{rel}: genau eine H1 erwartet, gefunden {parser.h1_count}")
+        expected_language = "en" if rel.startswith("en/") else "de"
+        if parser.html_languages != [expected_language]:
+            errors.append(
+                f"{rel}: HTML-Sprache muss genau {expected_language} sein, gefunden {parser.html_languages}"
+            )
+        if parser.language_switchers != 1:
+            errors.append(f"{rel}: genau eine DE/EN-Sprachauswahl erwartet")
+        if parser.header_insight_links:
+            errors.append(f"{rel}: Insights darf nicht in der Hauptnavigation stehen")
+        if "favicon-v2-32.png" not in html_text or "favicon-v2-16.png" not in html_text:
+            errors.append(f"{rel}: neues transparentes Favicon fehlt")
+        if len(parser.cloudflare_analytics) != 1:
+            errors.append(f"{rel}: genau ein Cloudflare-Web-Analytics-Beacon erwartet")
+        else:
+            analytics = parser.cloudflare_analytics[0]
+            try:
+                analytics_config = json.loads(analytics["config"])
+            except json.JSONDecodeError:
+                analytics_config = {}
+            if analytics["type"].lower() != "module":
+                errors.append(f"{rel}: Cloudflare-Web-Analytics muss als Modul geladen werden")
+            if analytics_config != {"token": CLOUDFLARE_ANALYTICS_TOKEN}:
+                errors.append(f"{rel}: falsche Cloudflare-Web-Analytics-Konfiguration")
         duplicate_ids = sorted({item for item in parser.ids if parser.ids.count(item) > 1})
         if duplicate_ids:
             errors.append(f"{rel}: doppelte IDs {duplicate_ids}")

@@ -1,6 +1,6 @@
 # sarahofmann.de — statische Website
 
-Statische HTML/CSS/JS-Website für **sarahofmann.de**. Kein Framework, kein CMS.
+Statische deutsch- und englischsprachige HTML/CSS/JS-Website für **sarahofmann.de**. Kein Framework, kein CMS.
 Die Website wird wie `robutrace.de` direkt aus dem Branch `main` über GitHub
 Pages veröffentlicht. Das Kontaktformular nutzt einen eigenen Form.taxi-Endpunkt.
 
@@ -16,6 +16,7 @@ kontakt.html            Kontaktformular über Form.taxi
 danke.html              Erfolgsseite nach Formular-Versand
 insights.html           Übersicht der Insights
 insights/               Einzelne Beiträge
+en/                     Englische Kernseiten und englischer Knowledge-Graph-Beitrag
 impressum.html          Impressum
 datenschutz.html        Datenschutzerklärung
 agb.html                Allgemeine Geschäftsbedingungen
