@@ -32,6 +32,7 @@ STRUCTURED_DATA_FILES = {
     "insights/beruf-studium-balance.html",
     "insights/effektive-nachhilfe.html",
     "insights/interdisziplinaeres-denken.html",
+    "insights/kamerakalibrierung-opencv-python.html",
     "insights/knowledge-graphs-industrielle-bildverarbeitung.html",
     "insights/matlab-simulink.html",
     "en/index.html",
@@ -40,6 +41,7 @@ STRUCTURED_DATA_FILES = {
     "en/lecturing.html",
     "en/tutoring.html",
     "en/industrial-machine-vision-python.html",
+    "en/insights/opencv-camera-calibration-python.html",
     "en/insights/knowledge-graphs-industrial-machine-vision.html",
 }
 
