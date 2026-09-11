@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenCV: Otsu vs Adaptive Thresholding | Sara Hofmann</title>
+<meta name="description" content="Compare Otsu, adaptive and fixed thresholding with OpenCV and Python: working code, parameter pitfalls and an industrial machine-vision test plan.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://sarahofmann.de/en/insights/opencv-thresholding-otsu-adaptive-python">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/insights/opencv-schwellwert-otsu-adaptiv-python">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/insights/opencv-thresholding-otsu-adaptive-python">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/insights/opencv-schwellwert-otsu-adaptiv-python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenCV with Python: comparing Otsu, adaptive and fixed thresholds">
+<meta property="og:description" content="Compare Otsu, adaptive and fixed thresholding with OpenCV and Python: working code, parameter pitfalls and an industrial machine-vision test plan.">
+<meta property="og:url" content="https://sarahofmann.de/en/insights/opencv-thresholding-otsu-adaptive-python">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:site_name" content="Sara Hofmann">
+<meta property="article:published_time" content="2026-09-11">
+<meta property="article:modified_time" content="2026-09-11">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenCV: Otsu vs Adaptive Thresholding | Sara Hofmann">
+<meta name="twitter:description" content="Compare Otsu, adaptive and fixed thresholding with OpenCV and Python: working code, parameter pitfalls and an industrial machine-vision test plan.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="/assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="/css/style.css?v=20260911">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "OpenCV with Python: comparing Otsu, adaptive and fixed thresholds",
+  "description": "Compare Otsu, adaptive and fixed thresholding with OpenCV and Python: working code, parameter pitfalls and an industrial machine-vision test plan.",
+  "datePublished": "2026-09-11",
+  "dateModified": "2026-09-11",
+  "inLanguage": "en",
+  "mainEntityOfPage": "https://sarahofmann.de/en/insights/opencv-thresholding-otsu-adaptive-python",
+  "author": {
+    "@type": "Person",
+    "name": "Sara Hofmann",
+    "url": "https://sarahofmann.de/en/about",
+    "@id": "https://sarahofmann.de/uebermich#person"
+  },
+  "publisher": {
+    "@id": "https://sarahofmann.de/#business"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="site-header__inner">
+<a class="brand" href="/en/" aria-label="Sara Hofmann – Home"><img src="/assets/images/logo-transparent.png" alt="Sara Hofmann – Freelance Engineer &amp; Consultant" width="600" height="600"></a>
+<nav class="main-nav" id="main-nav" aria-label="Main navigation"><ul class="main-nav__list"><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul></nav>
+<div class="header-actions"><nav class="lang-switcher" aria-label="Choose language">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+<a href="/insights/opencv-schwellwert-otsu-adaptiv-python" lang="de" hreflang="de">DE</a><span aria-hidden="true">/</span><a href="/en/insights/opencv-thresholding-otsu-adaptive-python" lang="en" hreflang="en" aria-current="page">EN</a>
+</nav><a class="cv-badge" href="/en/cv" aria-label="CV – currently being updated">CV</a><button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button></div>
+</div></header>
+<main id="main"><article class="article article--technical">
+<a class="back-link" href="/en/insights">← All insights</a>
+<p class="eyebrow">Machine vision · Python · Test methodology</p>
+<h1 class="gradient-text">OpenCV with Python: comparing Otsu, adaptive and fixed thresholds</h1>
+<p class="article__meta"><time datetime="2026-09-11">11 September 2026</time> · Written by <a href="/en/about" rel="author">Sara Hofmann</a></p>
+<p><strong>Which threshold fits the inspection task?</strong> A fixed threshold, Otsu and adaptive thresholding do not solve the same problem. This guide provides a traceable comparison using Python and OpenCV: from the image region to a binary mask and the questions that must be answered before industrial use.</p>
+<p>The example is a learning and comparison prototype for dark features on a bright background. It contains no customer images, production metrics or release claim. The selection and test recommendations are an engineering approach, not universal acceptance limits.</p>
+<nav class="article-toc" aria-label="Table of contents"><h2>On this page</h2><ul><li><a href="#decision">Choose a method</a></li><li><a href="#python">Python example</a></li><li><a href="#parameters">Parameters and common mistakes</a></li><li><a href="#validation">A test plan beyond attractive sample images</a></li></ul></nav>
+
+<h2 id="decision">Fixed threshold, Otsu or adaptive?</h2>
+<p>A fixed threshold uses the same specified value everywhere. Otsu derives a global value from the histogram; well-separated intensity groups are a useful starting point. Adaptive methods calculate local thresholds instead. The <a href="#source-1">OpenCV tutorial [1]</a> explains these foundations.</p>
+<div class="article-table" role="region" aria-label="Thresholding decision guide" tabindex="0">
+<table><caption>Comparing three methods</caption><thead><tr><th scope="col">Starting condition</th><th scope="col">First candidate</th><th scope="col">Critical countercheck</th></tr></thead><tbody>
+<tr><th scope="row">Contrast remains stable across the inspection region</th><td>Fixed threshold</td><td>Does the same value survive permitted brightness changes?</td></tr>
+<tr><th scope="row">Two intensity groups in the selected region</th><td>Otsu</td><td>Does changing the object proportion still yield a useful result?</td></tr>
+<tr><th scope="row">Background brightness varies spatially</th><td>Adaptive</td><td>Are entire regions detected, or only their edges?</td></tr>
+</tbody></table></div>
+<p>My recommendation is to compare all three candidates on the same representative images first. A more elaborate method does not automatically win. If a simple method satisfies the requirements defined beforehand, another parameter layer initially introduces another potential source of error.</p>
+<p>Define the region of interest (ROI) from the task before tuning. A changing crop is a different input and must be documented as such. Tuning an algorithm on a tight crop and later processing the entire camera image is not a comparison under identical conditions.</p>
+
+<h2 id="python">Python example: three masks with identical preprocessing</h2>
+<p>You need Python, NumPy and OpenCV; this article uses version 4.12 as its API reference. The script expects your own file named <code>inspection.png</code>: a single-channel 8-bit image measuring at least 31 × 31 pixels. It explicitly rejects colour images and higher-bit-depth intensity values. <code>IMREAD_UNCHANGED</code> avoids silently converting the input during loading here. See the <a href="#source-5">file API [5]</a>.</p>
+<pre role="region" tabindex="0" aria-label="Python example comparing the three methods"><code class="language-python">import cv2 as cv
+import numpy as np
+
+
+def compare_thresholds(gray):
+    if gray is None or not isinstance(gray, np.ndarray):
+        raise ValueError("Provide a readable image.")
+    if gray.ndim != 2 or gray.dtype != np.uint8:
+        raise ValueError("Expected single-channel uint8.")
+    if min(gray.shape) &lt; 31:
+        raise ValueError("Example requires at least 31 x 31 pixels.")
+
+    smooth = cv.GaussianBlur(gray, (3, 3), 0)
+    _, fixed = cv.threshold(
+        smooth, 120, 255, cv.THRESH_BINARY_INV
+    )
+    otsu_value, otsu = cv.threshold(
+        smooth, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU
+    )
+    adaptive = cv.adaptiveThreshold(
+        smooth, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv.THRESH_BINARY_INV, 31, 7
+    )
+    return otsu_value, {
+        "fixed": fixed, "otsu": otsu, "adaptive": adaptive
+    }
+
+
+if __name__ == "__main__":
+    gray = cv.imread("inspection.png", cv.IMREAD_UNCHANGED)
+    threshold, masks = compare_thresholds(gray)
+    print("OpenCV:", cv.__version__)
+    print("Otsu threshold:", threshold)
+    for name, mask in masks.items():
+        print(name, mask.shape, mask.dtype)</code></pre>
+<p>The masks stay in memory; input files are not overwritten. Every method receives the same smoothed input. With <code>THRESH_BINARY_INV</code>, values up to and including the respective threshold become white. In this example the dark inspection feature is therefore the white foreground. The reported Otsu value is an intensity threshold, not a confidence score or quality measure. <a href="#source-2">API details [2]</a>.</p>
+<p>The numbers <code>120</code>, <code>31</code> and <code>7</code> are starting values for comparison, not industrial recommendations. A synthetic functional test can demonstrate working formats and calls; it cannot replace evaluation on real inspection images. Record the actual installed library versions in the test log to support reproduction.</p>
+
+<h2 id="parameters">Vary parameters deliberately, not all at once</h2>
+<h3>Window size and offset</h3>
+<p><code>adaptiveThreshold()</code> requires a single-channel 8-bit image and an odd window size greater than one. The Gaussian method subtracts <code>C</code> from the locally weighted mean. <a href="#source-2">OpenCV reference [2]</a>.</p>
+<p>A useful limiting case follows directly: if the window lies entirely inside a uniformly dark region and <code>C</code> is positive, its pixel value is above “local mean minus C”. The inverted mask becomes black there. A region can therefore disappear internally even though its edges are detected. Adaptive thresholding is not synonymous with complete object segmentation.</p>
+<p>A useful countercheck tests the same feature size at several image positions and with several window sizes. Initially keep everything else constant. When image resolution changes, an unchanged window size in pixels must not be assumed to represent the same application scale without checking.</p>
+
+<h3>Smoothing and morphology</h3>
+<p>Gaussian smoothing reduces high-frequency image content but can also blur edges. The example's 3 × 3 smoothing is therefore only a comparison condition. An additional test without smoothing helps reveal whether small relevant details disappear. <a href="#source-3">OpenCV on filters [3]</a>.</p>
+<p>Opening consists of erosion followed by dilation; closing reverses that sequence. These can remove small foreground structures or close small holes, respectively. <a href="#source-4">OpenCV on morphology [4]</a>. Those very structures could be the defects being sought. The example therefore deliberately includes no automatic “cleanup”.</p>
+<p>Before postprocessing, record what counts as nuisance and what counts as a defect. If a dark scratch is represented as a white feature, cleanup must not delete it merely because it is small. Keep the raw and processed masks side by side during testing.</p>
+
+<h2 id="validation">A test plan beyond attractive sample images</h2>
+<p>For a defensible comparison, I recommend the following sequence. It is independent of which candidate looks best on the first image:</p>
+<ol>
+<li><strong>Define the decision:</strong> Is the task to locate a part, detect a defect or measure an area? A similar-looking mask is not yet a correct inspection decision.</li>
+<li><strong>Establish references:</strong> Keep the original image, expected result and reasoning together. Mark ambiguous cases separately instead of relabelling them to fit the result afterwards.</li>
+<li><strong>Separate tuning and evaluation data:</strong> Set parameters on one subset, then evaluate on previously unused images. Do not treat nearly identical images of the same part as independent confirmation.</li>
+<li><strong>Include boundary cases deliberately:</strong> Cover permitted variations in position, material and brightness, empty images, borderline cases, and both defective and acceptable parts. The application determines which variations are permitted.</li>
+<li><strong>Count errors separately:</strong> Record missed defects separately from falsely rejected acceptable parts. For measurement tasks, also measure against a suitable reference; the pixel mask alone is insufficient.</li>
+<li><strong>Make changes traceable:</strong> Version the dataset, ROI, filters, thresholding method, parameters and software together. Test runtime on the intended target system with the complete processing chain.</li>
+</ol>
+<p>One possible record is: image ID → reference decision → configuration → result → deviation → open question. This proposal does not supply acceptance limits. Derive those from the risks and requirements of the specific task before the final evaluation.</p>
+<p>Geometric measurements also depend on imaging geometry: the <a href="/en/insights/opencv-camera-calibration-python">OpenCV camera calibration guide</a> covers that separate building block. The article on <a href="/en/insights/knowledge-graphs-industrial-machine-vision">knowledge graphs in machine vision</a> explains how configurations and evidence can be connected.</p>
+
+<h2>Frequently asked questions</h2>
+<h3>Why does Otsu not automatically produce the correct mask?</h3>
+<p>Otsu does not know what a defect means. A histogram contains intensity frequencies, not application labels such as “acceptable” or “defective”. The computed result must therefore be checked against the intended inspection decision.</p>
+<h3>Should a 16-bit camera image simply be converted to uint8?</h3>
+<p>Not silently. The example intentionally rejects it. Any required scaling belongs in the documented processing chain, including input range and information loss; parameters must be checked again after a change.</p>
+<h3>When is a different approach needed?</h3>
+<p>If relevant cases cannot be separated reliably within permitted operating conditions, reassess the task: acquisition conditions, suitable features or a different segmentation method. One more parameter alone is not evidence that the cause has been addressed.</p>
+
+<aside class="article-next-step" aria-label="Related service"><h2>Investigate a specific inspection task with Python?</h2><p>I support image-data analysis, prototypical OpenCV evaluation and traceable documentation of results and limitations.</p><a class="text-link" href="/en/industrial-machine-vision-python">Industrial machine vision with Python →</a></aside>
+<h2>Primary sources</h2>
+<ol><li id="source-1"><a href="https://docs.opencv.org/4.12.0/d7/d4d/tutorial_py_thresholding.html">OpenCV 4.12: Image Thresholding</a></li>
+<li id="source-2"><a href="https://docs.opencv.org/4.12.0/d7/d1b/group__imgproc__misc.html">OpenCV 4.12: threshold / adaptiveThreshold API</a></li>
+<li id="source-3"><a href="https://docs.opencv.org/4.12.0/d4/d13/tutorial_py_filtering.html">OpenCV 4.12: Smoothing Images</a></li>
+<li id="source-4"><a href="https://docs.opencv.org/4.12.0/d9/d61/tutorial_py_morphological_ops.html">OpenCV 4.12: Morphological Transformations</a></li>
+<li id="source-5"><a href="https://docs.opencv.org/4.12.0/d4/da8/group__imgcodecs.html">OpenCV 4.12: Image File Reading and Writing</a></li></ol>
+<p class="article__source-note">Documentation baseline: OpenCV 4.12; sources checked on 11 September 2026. The code is an original comparison example. The test strategy and the interpretation of uniform region interiors are engineering recommendations derived from these foundations.</p>
+</article></main>
+<footer class="site-footer"><div class="container"><ul class="footer-nav"><li><a href="/en/insights">Insights</a></li><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul><ul class="footer-legal"><li><a href="/impressum">Legal notice (German)</a></li><li><a href="/datenschutz">Privacy policy (German)</a></li><li><a href="/agb">Terms (German)</a></li><li><a href="/widerruf">Cancellation policy (German)</a></li></ul><p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p></div></footer>
+<script src="/js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
