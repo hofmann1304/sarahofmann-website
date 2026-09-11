@@ -16,7 +16,7 @@ kontakt.html            Kontaktformular über Form.taxi
 danke.html              Erfolgsseite nach Formular-Versand
 insights.html           Übersicht der Insights
 insights/               Einzelne Beiträge
-en/                     Englische Kernseiten und englischer Knowledge-Graph-Beitrag
+en/                     Englische Kernseiten und vollständige technische Fachbeiträge
 impressum.html          Impressum
 datenschutz.html        Datenschutzerklärung
 agb.html                Allgemeine Geschäftsbedingungen
@@ -35,7 +35,7 @@ sitemap.xml, robots.txt Suchmaschinen-Metadaten
 
 Die Website verwendet ausschließlich die sauberen, endungslosen URLs als
 interne Ziele, Canonical-URLs und Sitemap-Einträge. Indexierbar sind die
-Startseite, Profil- und Leistungsseiten, Kontakt, Insights-Übersicht und sechs
+Startseiten, Profil- und Leistungsseiten, Kontakt, Insights-Übersichten und
 Fachartikel. Fehler-, Bestätigungs-, CV-Wartungs- und Rechtstextseiten tragen
 `noindex` und stehen nicht in der Sitemap.
 
@@ -44,7 +44,7 @@ Strukturierte Daten kennzeichnen:
 - Website und freiberufliches Unternehmen auf der Startseite,
 - Sara Hofmann als Person auf der Über-mich-Seite,
 - die drei Angebote als Leistungen,
-- Fachartikel mit Autorin, Veröffentlichungsdatum und Titelbild.
+- Fachartikel mit Autorin, Veröffentlichungsdatum und gegebenenfalls Titelbild.
 
 Nach Veröffentlichung muss `https://sarahofmann.de/sitemap.xml` in der Google
 Search Console eingereicht und die Indexierung beobachtet werden. Die frühere
@@ -58,12 +58,18 @@ Die Seite kann direkt über `index.html` geöffnet werden. Für realistische
 Pfad- und Linktests empfiehlt sich ein lokaler Server:
 
 ```bash
-python -m http.server 8080
+python scripts/serve_site.py --port 8080
 ```
 
-Danach `http://localhost:8080` öffnen. Das Kontaktformular darf bei lokalen
+Danach `http://127.0.0.1:8080` öffnen. Der Vorschau-Server bildet auch die
+endungslosen HTML-Adressen wie GitHub Pages ab. Das Kontaktformular darf bei lokalen
 Tests nicht abgesendet werden, weil es echte Daten an Form.taxi übertragen
 würde.
+
+Mit `python scripts/check_site.py` werden alle HTML-Seiten, lokale Ziele
+einschließlich Sprungmarken und srcset-Bildern, wechselseitige hreflang-Verweise,
+Metadaten, Analytics und Sitemap-Konsistenz geprüft. Neue Beiträge werden als
+deutsche/englische Paare veröffentlicht; dekorative Titelbilder sind nicht nötig.
 
 ## Veröffentlichung über GitHub Pages
 
@@ -107,6 +113,6 @@ Datenschutzerklärung gelöscht werden.
 
 - Überschriften: lokal ausgeliefertes `Cormorant Infant`
 - Fließtext und UI: lokal ausgeliefertes `Archivo`
-- Keine Analyse-, Marketing- oder Trackingdienste
+- Cloudflare Web Analytics auf allen HTML-Seiten
 - Keine extern geladenen Webfonts
-- Sprachhinweis im Header derzeit rein informativ; gepflegt wird Deutsch
+- Funktionsfähiger DE/EN-Sprachwechsel; neue Fachbeiträge erscheinen vollständig zweisprachig

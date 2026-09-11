@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenCV: Otsu oder adaptiver Schwellwert? | Sara Hofmann</title>
+<meta name="description" content="Otsu, adaptive und feste Schwellwerte mit OpenCV und Python vergleichen: Code, Parameterfallen und ein Prüfplan für industrielle Bildverarbeitung.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://sarahofmann.de/insights/opencv-schwellwert-otsu-adaptiv-python">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/insights/opencv-schwellwert-otsu-adaptiv-python">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/insights/opencv-thresholding-otsu-adaptive-python">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/insights/opencv-schwellwert-otsu-adaptiv-python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenCV mit Python: Otsu, adaptive und feste Schwellwerte richtig vergleichen">
+<meta property="og:description" content="Otsu, adaptive und feste Schwellwerte mit OpenCV und Python vergleichen: Code, Parameterfallen und ein Prüfplan für industrielle Bildverarbeitung.">
+<meta property="og:url" content="https://sarahofmann.de/insights/opencv-schwellwert-otsu-adaptiv-python">
+<meta property="og:locale" content="de_DE">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:site_name" content="Sara Hofmann">
+<meta property="article:published_time" content="2026-09-11">
+<meta property="article:modified_time" content="2026-09-11">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenCV: Otsu oder adaptiver Schwellwert? | Sara Hofmann">
+<meta name="twitter:description" content="Otsu, adaptive und feste Schwellwerte mit OpenCV und Python vergleichen: Code, Parameterfallen und ein Prüfplan für industrielle Bildverarbeitung.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="/assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="/css/style.css?v=20260911">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "OpenCV mit Python: Otsu, adaptive und feste Schwellwerte richtig vergleichen",
+  "description": "Otsu, adaptive und feste Schwellwerte mit OpenCV und Python vergleichen: Code, Parameterfallen und ein Prüfplan für industrielle Bildverarbeitung.",
+  "datePublished": "2026-09-11",
+  "dateModified": "2026-09-11",
+  "inLanguage": "de",
+  "mainEntityOfPage": "https://sarahofmann.de/insights/opencv-schwellwert-otsu-adaptiv-python",
+  "author": {
+    "@type": "Person",
+    "name": "Sara Hofmann",
+    "url": "https://sarahofmann.de/uebermich",
+    "@id": "https://sarahofmann.de/uebermich#person"
+  },
+  "publisher": {
+    "@id": "https://sarahofmann.de/#business"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<header class="site-header"><div class="site-header__inner">
+<a class="brand" href="/" aria-label="Sara Hofmann – Startseite"><img src="/assets/images/logo-transparent.png" alt="Sara Hofmann – Freelance Engineer &amp; Consultant" width="600" height="600"></a>
+<nav class="main-nav" id="main-nav" aria-label="Hauptnavigation"><ul class="main-nav__list"><li><a href="/uebermich">Über mich</a></li><li><a href="/consulting">Consulting</a></li><li><a href="/dozententaetigkeit">Dozententätigkeit</a></li><li><a href="/nachhilfe">Nachhilfe</a></li><li><a href="/kontakt">Kontakt</a></li></ul></nav>
+<div class="header-actions"><nav class="lang-switcher" aria-label="Sprache wählen">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+<a href="/insights/opencv-schwellwert-otsu-adaptiv-python" lang="de" hreflang="de" aria-current="page">DE</a><span aria-hidden="true">/</span><a href="/en/insights/opencv-thresholding-otsu-adaptive-python" lang="en" hreflang="en">EN</a>
+</nav><a class="cv-badge" href="/lebenslauf" aria-label="Lebenslauf – wird aktualisiert">CV</a><button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button></div>
+</div></header>
+<main id="main"><article class="article article--technical">
+<a class="back-link" href="/insights">← Alle Insights</a>
+<p class="eyebrow">Bildverarbeitung · Python · Prüfmethodik</p>
+<h1 class="gradient-text">OpenCV mit Python: Otsu, adaptive und feste Schwellwerte richtig vergleichen</h1>
+<p class="article__meta"><time datetime="2026-09-11">11. September 2026</time> · Verfasst von <a href="/uebermich" rel="author">Sara Hofmann</a></p>
+<p><strong>Welcher Schwellwert passt zur Prüfaufgabe?</strong> Ein fester Grenzwert, Otsu und adaptive Schwellwertbildung lösen nicht dasselbe Problem. Dieser Leitfaden zeigt einen nachvollziehbaren Vergleich mit Python und OpenCV: vom Bildausschnitt über eine binäre Maske bis zu den Fragen, die vor einem industriellen Einsatz beantwortet sein müssen.</p>
+<p>Das Beispiel ist ein Lern- und Vergleichsprototyp für dunkle Merkmale auf hellem Hintergrund. Es enthält keine Kundenbilder, Produktionskennzahlen oder Freigabeaussage. Die Auswahl- und Testempfehlungen sind eine technische Vorgehensweise, keine universellen Grenzwerte.</p>
+<nav class="article-toc" aria-label="Inhaltsverzeichnis"><h2>Auf dieser Seite</h2><ul><li><a href="#entscheidung">Verfahren auswählen</a></li><li><a href="#python">Python-Beispiel</a></li><li><a href="#parameter">Parameter und typische Fehler</a></li><li><a href="#validierung">Prüfplan statt schöner Einzelbilder</a></li></ul></nav>
+
+<h2 id="entscheidung">Fester Schwellwert, Otsu oder adaptiv?</h2>
+<p>Ein fester Schwellwert verwendet überall denselben vorgegebenen Wert. Otsu ermittelt einen globalen Wert aus dem Histogramm; gut getrennte Helligkeitsgruppen sind dafür ein günstiger Ausgangspunkt. Adaptive Verfahren berechnen dagegen lokale Grenzwerte. Die Grundlagen beschreibt das <a href="#quelle-1">OpenCV-Tutorial [1]</a>.</p>
+<div class="article-table" role="region" aria-label="Entscheidungshilfe für Schwellwertverfahren" tabindex="0">
+<table><caption>Drei Verfahren im Vergleich</caption><thead><tr><th scope="col">Ausgangslage</th><th scope="col">Erster Kandidat</th><th scope="col">Kritische Gegenprobe</th></tr></thead><tbody>
+<tr><th scope="row">Kontrast bleibt über den Prüfbereich stabil</th><td>Fester Schwellwert</td><td>Hält derselbe Wert auch bei zulässiger Helligkeitsänderung?</td></tr>
+<tr><th scope="row">Zwei Helligkeitsgruppen im gewählten Ausschnitt</th><td>Otsu</td><td>Bleibt das Ergebnis bei anderem Objektanteil im Bild brauchbar?</td></tr>
+<tr><th scope="row">Hintergrundhelligkeit variiert räumlich</th><td>Adaptiv</td><td>Werden Flächen vollständig erfasst oder nur ihre Ränder?</td></tr>
+</tbody></table></div>
+<p>Meine Empfehlung: zunächst alle drei Kandidaten auf denselben repräsentativen Aufnahmen vergleichen. Ein aufwendigeres Verfahren gewinnt nicht automatisch. Wenn eine einfache Methode die vorher festgelegten Anforderungen erfüllt, ist eine zusätzliche Parameterebene zunächst eine weitere mögliche Fehlerquelle.</p>
+<p>Den Prüfbereich (ROI, <span lang="en">region of interest</span>) vorab fachlich festlegen. Ein wechselnder Ausschnitt ist eine andere Eingabe und muss als solche dokumentiert werden. Wer einen Algorithmus auf einem engen Ausschnitt einstellt und später das gesamte Kamerabild verarbeitet, vergleicht keine identischen Bedingungen.</p>
+
+<h2 id="python">Python-Beispiel: drei Masken mit identischer Vorverarbeitung</h2>
+<p>Benötigt werden Python, NumPy und OpenCV; die API-Referenz dieses Beitrags ist Version 4.12. Das Skript erwartet eine eigene Datei <code>inspection.png</code>: ein einkanaliges 8-Bit-Bild, mindestens 31 × 31 Pixel groß. Farbbilder und höher aufgelöste Intensitätswerte werden ausdrücklich abgewiesen. <code>IMREAD_UNCHANGED</code> vermeidet hier eine stillschweigende Umwandlung beim Einlesen. Siehe <a href="#quelle-5">Datei-API [5]</a>.</p>
+<pre role="region" tabindex="0" aria-label="Python-Beispiel zum Vergleich der drei Verfahren"><code class="language-python">import cv2 as cv
+import numpy as np
+
+
+def compare_thresholds(gray):
+    if gray is None or not isinstance(gray, np.ndarray):
+        raise ValueError("Provide a readable image.")
+    if gray.ndim != 2 or gray.dtype != np.uint8:
+        raise ValueError("Expected single-channel uint8.")
+    if min(gray.shape) &lt; 31:
+        raise ValueError("Example requires at least 31 x 31 pixels.")
+
+    smooth = cv.GaussianBlur(gray, (3, 3), 0)
+    _, fixed = cv.threshold(
+        smooth, 120, 255, cv.THRESH_BINARY_INV
+    )
+    otsu_value, otsu = cv.threshold(
+        smooth, 0, 255, cv.THRESH_BINARY_INV | cv.THRESH_OTSU
+    )
+    adaptive = cv.adaptiveThreshold(
+        smooth, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv.THRESH_BINARY_INV, 31, 7
+    )
+    return otsu_value, {
+        "fixed": fixed, "otsu": otsu, "adaptive": adaptive
+    }
+
+
+if __name__ == "__main__":
+    gray = cv.imread("inspection.png", cv.IMREAD_UNCHANGED)
+    threshold, masks = compare_thresholds(gray)
+    print("OpenCV:", cv.__version__)
+    print("Otsu threshold:", threshold)
+    for name, mask in masks.items():
+        print(name, mask.shape, mask.dtype)</code></pre>
+<p>Die Masken bleiben im Arbeitsspeicher; Eingabedateien werden nicht überschrieben. Alle Varianten erhalten dieselbe geglättete Eingabe. Mit <code>THRESH_BINARY_INV</code> werden Werte bis einschließlich des jeweiligen Grenzwerts weiß. Damit ist im Beispiel das dunkle Prüfmerkmal der weiße Vordergrund. Der ausgegebene Otsu-Wert ist ein Intensitätsgrenzwert, kein Vertrauenswert und kein Qualitätsmaß. <a href="#quelle-2">API-Details [2]</a>.</p>
+<p>Die Zahlen <code>120</code>, <code>31</code> und <code>7</code> sind Startwerte für den Vergleich, keine industriellen Empfehlungen. Eine synthetische Funktionsprüfung kann zeigen, dass Formate und Aufrufe funktionieren; sie ersetzt keine Auswertung echter Prüfaufnahmen. Für eine Reproduktion gehören die tatsächlich installierten Bibliotheksversionen ins Testprotokoll.</p>
+
+<h2 id="parameter">Parameter gezielt variieren – nicht gleichzeitig erraten</h2>
+<h3>Fenstergröße und Offset</h3>
+<p><code>adaptiveThreshold()</code> benötigt ein einkanaliges 8-Bit-Bild und eine ungerade Fenstergröße größer als eins. Beim Gauß-Verfahren wird der lokal gewichtete Mittelwert um <code>C</code> vermindert. <a href="#quelle-2">OpenCV-Referenz [2]</a>.</p>
+<p>Ein anschaulicher Grenzfall folgt direkt daraus: Liegt das Fenster vollständig in einer gleichmäßig dunklen Fläche und ist <code>C</code> positiv, liegt deren Pixelwert über „lokaler Mittelwert minus C“. Die invertierte Maske wird dort schwarz. Die Fläche kann deshalb innen verschwinden, obwohl ihre Ränder erkannt werden. Adaptive Schwellwertbildung ist somit nicht gleichbedeutend mit vollständiger Objektsegmentierung.</p>
+<p>Eine sinnvolle Gegenprobe ist, dieselbe Merkmalsgröße in mehreren Bildpositionen und bei mehreren Fenstergrößen zu testen. Dabei bleibt alles andere zunächst konstant. Ändert sich die Bildauflösung, darf eine unveränderte Fenstergröße in Pixeln nicht ungeprüft als derselbe fachliche Maßstab gelten.</p>
+
+<h3>Glättung und Morphologie</h3>
+<p>Gauß-Glättung reduziert hochfrequente Bildanteile, kann aber auch Kanten verbreitern. Deshalb ist die 3 × 3-Glättung im Beispiel nur eine Vergleichsbedingung. Ein zusätzlicher Test ohne Glättung zeigt, ob kleine relevante Details verloren gehen. <a href="#quelle-3">OpenCV zu Filtern [3]</a>.</p>
+<p>Opening besteht aus Erosion und anschließender Dilatation, Closing aus der umgekehrten Reihenfolge. Damit lassen sich kleine Vordergrundstrukturen entfernen beziehungsweise kleine Löcher schließen. <a href="#quelle-4">OpenCV zu Morphologie [4]</a>. Genau diese Strukturen könnten jedoch das gesuchte Fehlerbild sein. Deshalb ist im Beispiel bewusst keine automatische „Bereinigung“ eingebaut.</p>
+<p>Vor einer Nachbearbeitung die Frage festhalten: Was gilt fachlich als Störung, was als Defekt? Wird ein dunkler Kratzer als weißes Merkmal dargestellt, darf eine Reinigung ihn nicht bloß deshalb löschen, weil er klein ist. Rohmaske und bearbeitete Maske sollten im Test nebeneinander erhalten bleiben.</p>
+
+<h2 id="validierung">Prüfplan statt schöner Einzelbilder</h2>
+<p>Für einen belastbaren Vergleich empfehle ich folgende Reihenfolge. Sie ist unabhängig davon, welcher der drei Kandidaten auf dem ersten Bild am besten aussieht:</p>
+<ol>
+<li><strong>Entscheidung definieren:</strong> Soll ein Bauteil gefunden, ein Fehler erkannt oder eine Fläche gemessen werden? Eine ähnliche Maske ist noch keine richtige Prüfentscheidung.</li>
+<li><strong>Referenzen festlegen:</strong> Originalbild, erwartetes Ergebnis und Begründung zusammenhalten. Unklare Fälle getrennt kennzeichnen, statt sie nachträglich passend zu etikettieren.</li>
+<li><strong>Einstell- und Prüfdaten trennen:</strong> Parameter an einem Teil der Aufnahmen festlegen und an bislang unbenutzten Bildern prüfen. Nahezu identische Bilder desselben Teils nicht als unabhängige Bestätigung behandeln.</li>
+<li><strong>Randfälle bewusst aufnehmen:</strong> Zulässige Lage-, Material- und Helligkeitsvarianten, leere Bilder, Grenzfälle sowie fehlerfreie und fehlerhafte Teile berücksichtigen. Welche Varianten zulässig sind, kommt aus der Anwendung.</li>
+<li><strong>Fehler getrennt zählen:</strong> Übersehene Defekte und fälschlich verworfene Gutteile separat dokumentieren. Bei einer Messaufgabe zusätzlich gegen eine geeignete Referenz messen; die Pixelmaske allein genügt nicht.</li>
+<li><strong>Änderungen nachvollziehbar halten:</strong> Datensatz, ROI, Filter, Schwellwertverfahren, Parameter und Softwareversion gemeinsam versionieren. Laufzeit auf dem vorgesehenen Zielsystem mit der gesamten Verarbeitungskette prüfen.</li>
+</ol>
+<p>Eine mögliche Dokumentationszeile lautet: Bild-ID → Referenzentscheidung → Konfiguration → Ergebnis → Abweichung → offene Frage. Dieser Vorschlag liefert noch keine Akzeptanzgrenzen. Diese müssen vor der abschließenden Bewertung aus den Risiken und Anforderungen der konkreten Aufgabe abgeleitet werden.</p>
+<p>Für geometrische Messungen ist außerdem die Abbildungsgeometrie relevant: Der Leitfaden zur <a href="/insights/kamerakalibrierung-opencv-python">Kamerakalibrierung mit OpenCV</a> behandelt diesen separaten Baustein. Wie Konfigurationen und Nachweise verknüpft werden können, erläutert der Beitrag über <a href="/insights/knowledge-graphs-industrielle-bildverarbeitung">Knowledge Graphs in der Bildverarbeitung</a>.</p>
+
+<h2>Häufige Fragen</h2>
+<h3>Warum liefert Otsu nicht automatisch die richtige Maske?</h3>
+<p>Otsu kennt die Bedeutung eines Defekts nicht. Ein Histogramm enthält Helligkeitshäufigkeiten, aber keine fachliche Beschriftung „gut“ oder „schlecht“. Das berechnete Ergebnis muss deshalb gegen die gewünschte Prüfentscheidung geprüft werden.</p>
+<h3>Sollte ein 16-Bit-Kamerabild einfach in uint8 umgewandelt werden?</h3>
+<p>Nicht stillschweigend. Der Beispielcode bricht dafür absichtlich ab. Eine nötige Skalierung gehört mit Eingabebereich und Informationsverlust in die dokumentierte Verarbeitungskette; nach einer Änderung müssen die Parameter erneut geprüft werden.</p>
+<h3>Wann ist ein anderer Ansatz nötig?</h3>
+<p>Wenn sich die relevanten Fälle innerhalb der zulässigen Betriebsbedingungen nicht zuverlässig trennen lassen, sollte die Aufgabe neu bewertet werden: Aufnahmebedingungen, geeignete Merkmale oder ein anderes Segmentierungsverfahren. Ein weiterer Parameter allein ist kein Nachweis, dass die Ursache behoben wurde.</p>
+
+<aside class="article-next-step" aria-label="Passende Leistung"><h2>Eine konkrete Prüfaufgabe mit Python untersuchen?</h2><p>Ich unterstütze bei der Analyse von Bilddaten, prototypischer OpenCV-Auswertung und nachvollziehbarer Dokumentation der Ergebnisse und Grenzen.</p><a class="text-link" href="/industrielle-bildverarbeitung-python">Industrielle Bildverarbeitung mit Python →</a></aside>
+<h2>Verwendete Primärquellen</h2>
+<ol><li id="quelle-1"><a href="https://docs.opencv.org/4.12.0/d7/d4d/tutorial_py_thresholding.html">OpenCV 4.12: Image Thresholding</a></li>
+<li id="quelle-2"><a href="https://docs.opencv.org/4.12.0/d7/d1b/group__imgproc__misc.html">OpenCV 4.12: threshold / adaptiveThreshold API</a></li>
+<li id="quelle-3"><a href="https://docs.opencv.org/4.12.0/d4/d13/tutorial_py_filtering.html">OpenCV 4.12: Smoothing Images</a></li>
+<li id="quelle-4"><a href="https://docs.opencv.org/4.12.0/d9/d61/tutorial_py_morphological_ops.html">OpenCV 4.12: Morphological Transformations</a></li>
+<li id="quelle-5"><a href="https://docs.opencv.org/4.12.0/d4/da8/group__imgcodecs.html">OpenCV 4.12: Image File Reading and Writing</a></li></ol>
+<p class="article__source-note">Dokumentationsstand: OpenCV 4.12; Quellen geprüft am 11. September 2026. Der Code ist ein eigenständiges Vergleichsbeispiel. Die Prüfstrategie und die Interpretation des gleichmäßigen Flächeninneren sind daraus abgeleitete technische Empfehlungen.</p>
+</article></main>
+<footer class="site-footer"><div class="container"><ul class="footer-nav"><li><a href="/insights">Insights</a></li><li><a href="/uebermich">Über mich</a></li><li><a href="/consulting">Consulting</a></li><li><a href="/dozententaetigkeit">Dozententätigkeit</a></li><li><a href="/nachhilfe">Nachhilfe</a></li><li><a href="/kontakt">Kontakt</a></li></ul><ul class="footer-legal"><li><a href="/impressum">Impressum</a></li><li><a href="/datenschutz">Datenschutz</a></li><li><a href="/agb">Allgemeine Geschäftsbedingungen (AGB)</a></li><li><a href="/widerruf">Widerruf</a></li></ul><p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p></div></footer>
+<script src="/js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

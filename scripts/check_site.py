@@ -1,6 +1,6 @@
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -54,6 +54,7 @@ class PageParser(HTMLParser):
         self.missing_alt = []
         self.blank_without_rel = []
         self.canonicals = []
+        self.hreflangs = []
         self.descriptions = []
         self.robots = []
         self.external_resources = []
@@ -99,6 +100,13 @@ class PageParser(HTMLParser):
             )
         if tag == "link" and "canonical" in attr.get("rel", "").split():
             self.canonicals.append(attr.get("href", ""))
+        if tag == "link" and attr.get("hreflang"):
+            self.hreflangs.append((attr["hreflang"], attr.get("href", "")))
+        if tag in {"img", "source"} and attr.get("srcset"):
+            for candidate in attr["srcset"].split(","):
+                parts = candidate.strip().split()
+                if parts:
+                    self.refs.append(("srcset", parts[0]))
         if tag == "meta" and attr.get("name", "").lower() == "description":
             self.descriptions.append(attr.get("content", ""))
         if tag == "meta" and attr.get("name", "").lower() == "robots":
@@ -129,11 +137,13 @@ class PageParser(HTMLParser):
 
 def local_target(page, value):
     parsed = urlparse(value)
-    if parsed.scheme or value.startswith(("#", "mailto:", "tel:", "data:")):
+    if parsed.scheme and not value.startswith(PUBLIC_ORIGIN + "/"):
+        return None
+    if value.startswith(("mailto:", "tel:", "data:", "//")):
         return None
     raw_path = parsed.path
     if not raw_path:
-        return None
+        return page if parsed.fragment else None
     target = (ROOT / raw_path.lstrip("/")) if raw_path.startswith("/") else (page.parent / raw_path)
     target = target.resolve()
     # GitHub Pages serves extensionless URLs from the matching .html file.
@@ -154,6 +164,11 @@ def main():
     indexable_titles = {}
     indexable_descriptions = {}
     html_files = sorted(ROOT.rglob("*.html"))
+    page_parsers = {}
+    for target_page in html_files:
+        target_parser = PageParser()
+        target_parser.feed(target_page.read_text(encoding="utf-8"))
+        page_parsers[target_page.resolve()] = target_parser
 
     for page in html_files:
         html_text = page.read_text(encoding="utf-8")
@@ -179,7 +194,8 @@ def main():
                 json.loads(block)
             except json.JSONDecodeError as exc:
                 errors.append(f"{rel}: ungültiges JSON-LD ({exc.msg})")
-        if rel in STRUCTURED_DATA_FILES and not json_ld_blocks:
+        is_article = rel.startswith(("insights/", "en/insights/"))
+        if (rel in STRUCTURED_DATA_FILES or is_article) and not json_ld_blocks:
             errors.append(f"{rel}: erwartete strukturierte Daten fehlen")
 
         if parser.h1_count != 1:
@@ -240,11 +256,24 @@ def main():
             if len(parser.descriptions) == 1:
                 indexable_descriptions.setdefault(parser.descriptions[0], []).append(rel)
 
-        if rel.startswith("insights/"):
+        if is_article:
             if 'rel="author"' not in html_text:
                 errors.append(f"{rel}: verlinkte Autorenangabe fehlt")
             if "<time " not in html_text or "datetime=" not in html_text:
                 errors.append(f"{rel}: maschinenlesbares Veröffentlichungsdatum fehlt")
+
+        for language, alternate in parser.hreflangs:
+            target = local_target(page, alternate)
+            target_parser = page_parsers.get(target.resolve()) if target else None
+            if target_parser is None:
+                errors.append(f"{rel}: hreflang-Ziel fehlt ({alternate})")
+                continue
+            if alternate not in target_parser.canonicals:
+                errors.append(f"{rel}: hreflang-Ziel ist nicht kanonisch ({alternate})")
+            if language != "x-default" and target_parser.html_languages != [language]:
+                errors.append(f"{rel}: hreflang-Sprache passt nicht zum Ziel ({alternate})")
+            if parser.canonicals and (expected_language, parser.canonicals[0]) not in target_parser.hreflangs:
+                errors.append(f"{rel}: hreflang-Rueckverweis fehlt ({alternate})")
 
         for tag, value in parser.refs:
             parsed_ref = urlparse(value)
@@ -257,6 +286,10 @@ def main():
             target = local_target(page, value)
             if target is not None and not target.exists():
                 errors.append(f"{rel}: fehlendes lokales Ziel für {tag}={value}")
+            if target is not None and target.suffix == ".html" and parsed_ref.fragment:
+                target_parser = page_parsers.get(target.resolve())
+                if target_parser and unquote(parsed_ref.fragment) not in target_parser.ids:
+                    errors.append(f"{rel}: fehlender Sprunganker ({value})")
 
     for title, pages in indexable_titles.items():
         if len(pages) > 1:
