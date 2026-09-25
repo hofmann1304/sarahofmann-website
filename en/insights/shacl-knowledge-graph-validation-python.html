@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHACL with Python: Validate Knowledge Graphs | Sara Hofmann</title>
+<meta name="description" content="Validate engineering knowledge graphs with SHACL and Python: runnable Turtle example, required references, negative tests and validation limits.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://sarahofmann.de/en/insights/shacl-knowledge-graph-validation-python">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/insights/shacl-knowledge-graph-validierung-python">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/insights/shacl-knowledge-graph-validation-python">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/insights/shacl-knowledge-graph-validierung-python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SHACL with Python: validating engineering knowledge graphs">
+<meta property="og:description" content="Validate engineering knowledge graphs with SHACL and Python: runnable Turtle example, required references, negative tests and validation limits.">
+<meta property="og:url" content="https://sarahofmann.de/en/insights/shacl-knowledge-graph-validation-python">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:site_name" content="Sara Hofmann">
+<meta property="article:published_time" content="2026-09-25">
+<meta property="article:modified_time" content="2026-09-25">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SHACL with Python: validating engineering knowledge graphs">
+<meta name="twitter:description" content="Validate engineering knowledge graphs with SHACL and Python: runnable Turtle example, required references, negative tests and validation limits.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="/assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="/css/style.css?v=20260911">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "SHACL with Python: validating engineering knowledge graphs",
+  "description": "Validate engineering knowledge graphs with SHACL and Python: runnable Turtle example, required references, negative tests and validation limits.",
+  "datePublished": "2026-09-25",
+  "dateModified": "2026-09-25",
+  "inLanguage": "en",
+  "mainEntityOfPage": "https://sarahofmann.de/en/insights/shacl-knowledge-graph-validation-python",
+  "author": {
+    "@type": "Person",
+    "name": "Sara Hofmann",
+    "url": "https://sarahofmann.de/en/about",
+    "@id": "https://sarahofmann.de/uebermich#person"
+  },
+  "publisher": {
+    "@id": "https://sarahofmann.de/#business"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="site-header__inner">
+<a class="brand" href="/en/" aria-label="Sara Hofmann – Home"><img src="/assets/images/logo-transparent.png" alt="Sara Hofmann – Freelance Engineer &amp; Consultant" width="600" height="600"></a>
+<nav class="main-nav" id="main-nav" aria-label="Main navigation"><ul class="main-nav__list"><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul></nav>
+<div class="header-actions"><nav class="lang-switcher" aria-label="Choose language">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+<a href="/insights/shacl-knowledge-graph-validierung-python" lang="de" hreflang="de">DE</a><span aria-hidden="true">/</span><a href="/en/insights/shacl-knowledge-graph-validation-python" lang="en" hreflang="en" aria-current="page">EN</a>
+</nav><a class="cv-badge" href="/en/cv" aria-label="CV – currently being updated">CV</a><button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button></div>
+</div></header>
+<main id="main"><article class="article article--technical">
+<a class="back-link" href="/en/insights">← All insights</a>
+<p class="eyebrow">Knowledge graphs · Python · Engineering</p>
+<h1 class="gradient-text">SHACL with Python: validating engineering knowledge graphs</h1>
+<p class="article__meta"><time datetime="2026-09-25">25 September 2026</time> · Written by <a href="/en/about" rel="author">Sara Hofmann</a></p>
+
+<p><strong>How can you check whether an engineering knowledge graph is missing sources or evidence?</strong> SHACL can automate selected structural checks. This guide provides a small, executable Turtle and Python example: preparing an engineering decision for review, testing deliberately flawed data and interpreting a passing report correctly.</p>
+<p>It develops the quality-rule idea introduced in the <a href="/en/insights/knowledge-graphs-industrial-machine-vision">guide to knowledge graphs in machine vision</a>. All identifiers and data are invented teaching examples, not client or employer information. The aim is a traceable intake check, not automatic engineering approval.</p>
+<nav class="article-toc" aria-label="Contents"><h2>On this page</h2><ul><li><a href="#contract">Define the validation contract</a></li><li><a href="#example">Turtle and Python</a></li><li><a href="#negative-tests">Test deliberate errors</a></li><li><a href="#workflow">Use it in engineering</a></li></ul></nav>
+
+<h2 id="contract">Define the validation contract first</h2>
+<p>Our example answers a narrow question: is a decision sufficiently linked to enter a technical review? We require exactly one “ReadyForReview” status, at least one source identifier and at least one evidence identifier. This is an original modelling proposal, not an industry standard.</p>
+<p>We deliberately validate a <em>review export</em>, not the entire decision lifecycle. Drafts may remain incomplete in the working system. If included in this export, however, they should fail. Applying the same rules indiscriminately to the entire collection would otherwise flag legitimate draft states.</p>
+<p>SHACL separates the data graph from rules in a shapes graph. Targets select the nodes to check; constraints define permitted values. <code>sh:minCount</code> requires values, <code>sh:maxCount</code> limits their number and <code>sh:nodeKind sh:IRI</code> requires resource identifiers rather than text literals. The normative reference is the <a href="#source-1">W3C Recommendation [1]</a>.</p>
+<p>An IRI is an identifier, not evidence of a successful document retrieval. RDF distinguishes resource identifiers from literals; a string containing an address is not the same as the corresponding IRI. See <a href="#source-2">RDF 1.1 [2]</a> for these concepts.</p>
+
+<h2 id="example">A complete SHACL example with Python</h2>
+<p>Save the next three blocks as <code>data.ttl</code>, <code>shapes.ttl</code> and <code>validate_graph.py</code> in a separate working directory. You need Python, RDFLib and pySHACL. This example was checked with Python 3.14, RDFLib 7.6.0 and pySHACL 0.40.1. For reproducible experiments use those versions in a separate environment; do not update existing project environments without checking compatibility.</p>
+<h3>1. Data graph: a decision with references</h3>
+<pre role="region" tabindex="0" aria-label="Data graph data.ttl"><code class="language-turtle">@prefix ex: &lt;https://example.org/engineering/&gt; .
+
+ex:decision-17 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:document-4 ;
+    ex:evidence ex:test-9 .</code></pre>
+<p><code>ex:</code> is a freely chosen example vocabulary. Neither the document nor the test is described in detail here. This deliberately small dataset exposes the distinction between “a reference exists” and “the evidence is adequate”.</p>
+<h3>2. Shapes graph: the review-export contract</h3>
+<pre role="region" tabindex="0" aria-label="Validation rules shapes.ttl"><code class="language-turtle">@prefix ex: &lt;https://example.org/engineering/&gt; .
+@prefix sh: &lt;http://www.w3.org/ns/shacl#&gt; .
+
+ex:ReviewShape a sh:NodeShape ;
+    sh:targetClass ex:Decision ;
+    sh:targetSubjectsOf ex:status ;
+    sh:class ex:Decision ;
+    sh:property [
+        sh:path ex:status ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:hasValue ex:ReadyForReview
+    ] ;
+    sh:property [
+        sh:path ex:source ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path ex:evidence ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI
+    ] .</code></pre>
+<p>The two targets form a union: nodes classified as <code>ex:Decision</code> and nodes with <code>ex:status</code> are selected. Together with <code>sh:class</code>, this catches a status record without the required classification. <code>sh:hasValue</code> and the cardinality constraints jointly require exactly the intended status. See <a href="#source-1">targets and constraints [1]</a>.</p>
+<p>This safeguard has a clear boundary: if both type and status are missing, our targets do not select that record. Even an empty export therefore needs a separate completeness check against expected identifiers. Adding value constraints does not repair gaps in the selection of records to validate.</p>
+<h3>3. Run validation and return the result</h3>
+<pre role="region" tabindex="0" aria-label="Python validation validate_graph.py"><code class="language-python">from rdflib import Graph
+from pyshacl import validate
+
+data = Graph().parse("data.ttl", format="turtle")
+shapes = Graph().parse("shapes.ttl", format="turtle")
+
+conforms, report_graph, report_text = validate(
+    data,
+    shacl_graph=shapes,
+    inference="none",
+    meta_shacl=True,
+    advanced=False,
+    allow_infos=False,
+    allow_warnings=False,
+)
+print(report_text)
+raise SystemExit(0 if conforms else 1)</code></pre>
+<p>Run <code>python validate_graph.py</code> from this directory. The unchanged example should pass. A constraint violation makes the script exit with status 1. It does not overwrite input files. pySHACL returns conformance, an RDF results graph and a readable report; <code>meta_shacl=True</code> also checks the shapes graph. The options are documented in the <a href="#source-3">official project documentation [3]</a>.</p>
+<p><code>inference="none"</code> keeps the experiment free from additional RDFS/OWL inference. This is an intentionally limited test configuration. If an ontology or different inference options are introduced later, validate that exact configuration again. Syntax or execution errors are failed checks too, not approval.</p>
+
+<h2 id="negative-tests">Test more than the passing case</h2>
+<p>Apply each change below separately to a fresh copy of the example. This makes it possible to connect a result to its cause. These counterexamples were run automatically; they confirm this teaching example's behaviour, not the quality of a real engineering dataset.</p>
+<ul>
+<li><strong>Remove the source reference:</strong> must fail. This checks whether a missing required value is detected.</li>
+<li><strong>Replace the evidence with <code>"test-9"</code>:</strong> must fail. A text literal does not meet the IRI requirement.</li>
+<li><strong>Add a second status:</strong> must fail. Two distinct values violate the agreed uniqueness requirement.</li>
+<li><strong>Remove only the type, keeping the status:</strong> must fail. The second target prevents an unnoticed exclusion here.</li>
+<li><strong>Remove both type and status:</strong> passes in this example, even though references remain. This deliberately demonstrates the coverage gap.</li>
+<li><strong>Use an unresolved evidence IRI:</strong> passes. Our rules require an identifier, not its content or availability.</li>
+</ul>
+<p>When investigating a failure, start with the affected node, then the property path and violated rule. These are elements of the <a href="#source-1">SHACL validation report [1]</a>. A useful domain-facing message should also explain which team needs to supply which data. Forwarding raw validator text to everyone is rarely a workable instruction.</p>
+
+<h2 id="workflow">Turn the example into a reliable intake check</h2>
+<p>For practical use I recommend four separate validation layers. This is an engineering workflow proposal, not an additional claim made by the standard:</p>
+<ol>
+<li><strong>Coverage:</strong> compare expected decision identifiers from the export request with identifiers actually checked. Do not silently accept missing or empty deliveries.</li>
+<li><strong>Structure:</strong> check required values, permitted states and links. Version at least one valid case and several deliberately invalid cases for each contract.</li>
+<li><strong>Evidence:</strong> assess document version, access, applicability and test conditions separately. An existing reference must not automatically mean “confirmed”.</li>
+<li><strong>Technical review:</strong> a responsible person decides whether the evidence supports the specific claim. Open questions remain explicitly open.</li>
+</ol>
+<p>The validation record should include the data snapshot, shapes version, library versions, options and result. When rules change, run old and new rules against the same test collection. Otherwise it is unclear whether a different failure count reflects better data or weaker validation. Rules and data should be traceable together while retaining distinct ownership.</p>
+<p>For a machine-vision decision, evidence might later reference a documented <a href="/en/insights/opencv-thresholding-otsu-adaptive-python">comparison of segmentation methods</a>. Review must still establish whether the images, illumination and acceptance criteria match the current task. SHACL does not perform that engineering assessment.</p>
+
+<h2>Frequently asked questions</h2>
+<h3>Does a passing report prove the knowledge graph is correct?</h3>
+<p>No. It only means that the data actually selected meets the rules actually executed. Our example even passes with evidence that has no content description. Coverage and evidence assessment are therefore separate checks before using an engineering claim.</p>
+<h3>Should I immediately forbid all properties that are not defined?</h3>
+<p>Not for this starting point. First stabilise a small set of important handover rules. Additional metadata such as editing notes should not cause a failure here merely because it is absent from the small review contract.</p>
+<h3>Can this approve an AI-generated graph?</h3>
+<p>Not on its own. Plausibly structured claims can still be technically wrong. A useful workflow checks structure automatically, compares claims with their actual sources and escalates unsupported relationships to technical review.</p>
+<aside class="article-next-step" aria-label="Related service"><h2>Make engineering knowledge traceable?</h2><p>I support modelling technical concepts, decisions and dependencies, along with understandable documentation.</p><a class="text-link" href="/en/consulting">Technical consulting and knowledge graphs →</a></aside>
+<h2>Primary sources</h2>
+<ol><li id="source-1"><a href="https://www.w3.org/TR/shacl/">W3C: Shapes Constraint Language (SHACL), Recommendation</a></li><li id="source-2"><a href="https://www.w3.org/TR/rdf11-concepts/">W3C: RDF 1.1 Concepts and Abstract Syntax</a></li><li id="source-3"><a href="https://github.com/RDFLib/pySHACL">RDFLib: pySHACL – official documentation and source code</a></li></ol>
+<p class="article__source-note">Sources checked on 25 September 2026. Vocabulary, example data, counterexamples and adoption workflow are original teaching and modelling proposals. No operational data or project results are disclosed.</p>
+</article></main>
+<footer class="site-footer"><div class="container"><ul class="footer-nav"><li><a href="/en/insights">Insights</a></li><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul><ul class="footer-legal"><li><a href="/impressum">Legal notice (German)</a></li><li><a href="/datenschutz">Privacy policy (German)</a></li><li><a href="/agb">Terms (German)</a></li><li><a href="/widerruf">Cancellation policy (German)</a></li></ul><p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p></div></footer>
+<script src="/js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

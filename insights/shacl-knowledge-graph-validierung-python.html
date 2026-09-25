@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHACL mit Python: Knowledge Graphs prüfen | Sara Hofmann</title>
+<meta name="description" content="Knowledge Graphs mit SHACL und Python prüfen: ausführbares Turtle-Beispiel, Pflichtverweise, gezielte Fehlertests und Grenzen der Validierung.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://sarahofmann.de/insights/shacl-knowledge-graph-validierung-python">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/insights/shacl-knowledge-graph-validierung-python">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/insights/shacl-knowledge-graph-validation-python">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/insights/shacl-knowledge-graph-validierung-python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SHACL mit Python: Engineering Knowledge Graphs gezielt validieren">
+<meta property="og:description" content="Knowledge Graphs mit SHACL und Python prüfen: ausführbares Turtle-Beispiel, Pflichtverweise, gezielte Fehlertests und Grenzen der Validierung.">
+<meta property="og:url" content="https://sarahofmann.de/insights/shacl-knowledge-graph-validierung-python">
+<meta property="og:locale" content="de_DE">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:site_name" content="Sara Hofmann">
+<meta property="article:published_time" content="2026-09-25">
+<meta property="article:modified_time" content="2026-09-25">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SHACL mit Python: Engineering Knowledge Graphs gezielt validieren">
+<meta name="twitter:description" content="Knowledge Graphs mit SHACL und Python prüfen: ausführbares Turtle-Beispiel, Pflichtverweise, gezielte Fehlertests und Grenzen der Validierung.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="/assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="/css/style.css?v=20260911">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "SHACL mit Python: Engineering Knowledge Graphs gezielt validieren",
+  "description": "Knowledge Graphs mit SHACL und Python prüfen: ausführbares Turtle-Beispiel, Pflichtverweise, gezielte Fehlertests und Grenzen der Validierung.",
+  "datePublished": "2026-09-25",
+  "dateModified": "2026-09-25",
+  "inLanguage": "de",
+  "mainEntityOfPage": "https://sarahofmann.de/insights/shacl-knowledge-graph-validierung-python",
+  "author": {
+    "@type": "Person",
+    "name": "Sara Hofmann",
+    "url": "https://sarahofmann.de/uebermich",
+    "@id": "https://sarahofmann.de/uebermich#person"
+  },
+  "publisher": {
+    "@id": "https://sarahofmann.de/#business"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<header class="site-header"><div class="site-header__inner">
+<a class="brand" href="/" aria-label="Sara Hofmann – Startseite"><img src="/assets/images/logo-transparent.png" alt="Sara Hofmann – Freelance Engineer &amp; Consultant" width="600" height="600"></a>
+<nav class="main-nav" id="main-nav" aria-label="Hauptnavigation"><ul class="main-nav__list"><li><a href="/uebermich">Über mich</a></li><li><a href="/consulting">Consulting</a></li><li><a href="/dozententaetigkeit">Dozententätigkeit</a></li><li><a href="/nachhilfe">Nachhilfe</a></li><li><a href="/kontakt">Kontakt</a></li></ul></nav>
+<div class="header-actions"><nav class="lang-switcher" aria-label="Sprache wählen">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+<a href="/insights/shacl-knowledge-graph-validierung-python" lang="de" hreflang="de" aria-current="page">DE</a><span aria-hidden="true">/</span><a href="/en/insights/shacl-knowledge-graph-validation-python" lang="en" hreflang="en">EN</a>
+</nav><a class="cv-badge" href="/lebenslauf" aria-label="Lebenslauf – wird aktualisiert">CV</a><button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button></div>
+</div></header>
+<main id="main"><article class="article article--technical">
+<a class="back-link" href="/insights">← Alle Insights</a>
+<p class="eyebrow">Knowledge Graphs · Python · Engineering</p>
+<h1 class="gradient-text">SHACL mit Python: Engineering Knowledge Graphs gezielt validieren</h1>
+<p class="article__meta"><time datetime="2026-09-25">25. September 2026</time> · Verfasst von <a href="/uebermich" rel="author">Sara Hofmann</a></p>
+
+<p><strong>Wie lässt sich prüfen, ob einem technischen Knowledge Graph Quellen oder Nachweise fehlen?</strong> Mit SHACL lassen sich ausgewählte Strukturregeln automatisiert testen. Dieser Leitfaden zeigt ein kleines, ausführbares Beispiel mit Turtle und Python: eine technische Entscheidung für ein Review vorbereiten, absichtlich fehlerhafte Daten prüfen und einen grünen Prüfbericht richtig einordnen.</p>
+<p>Der Beitrag vertieft die Qualitätsregeln aus dem <a href="/insights/knowledge-graphs-industrielle-bildverarbeitung">Einstieg zu Knowledge Graphs in der Bildverarbeitung</a>. Alle Kennungen und Daten sind frei erfundene Lehrbeispiele, keine Kunden- oder Arbeitgeberdaten. Das Ziel ist eine nachvollziehbare Eingangskontrolle, keine automatische technische Freigabe.</p>
+<nav class="article-toc" aria-label="Inhaltsverzeichnis"><h2>Auf dieser Seite</h2><ul><li><a href="#vertrag">Prüfvertrag festlegen</a></li><li><a href="#beispiel">Turtle und Python</a></li><li><a href="#gegenproben">Fehler gezielt testen</a></li><li><a href="#betrieb">Im Engineering einsetzen</a></li></ul></nav>
+
+<h2 id="vertrag">Zuerst den Prüfvertrag definieren</h2>
+<p>Unser Beispiel beantwortet eine eng begrenzte Frage: Ist eine Entscheidung ausreichend verknüpft, um sie einem fachlichen Review zuzuführen? Dafür verlangen wir genau einen Status „ReadyForReview“, mindestens eine Quellenkennung und mindestens eine Nachweiskennung. Diese Auswahl ist ein eigener Modellierungsvorschlag, kein Industriestandard.</p>
+<p>Bewusst prüfen wir einen <em>Review-Export</em>, nicht den gesamten Lebenszyklus einer Entscheidung. Entwürfe dürfen im Arbeitssystem unvollständig sein. Werden sie in diesen Export übernommen, sollen sie jedoch scheitern. Wer dieselben Regeln ungefiltert auf einen Gesamtbestand anwendet, erzeugt sonst Fehlermeldungen für fachlich erlaubte Entwurfszustände.</p>
+<p>SHACL trennt den Datengraphen von den Regeln im Shapes-Graphen. Targets bestimmen die zu prüfenden Knoten; Bedingungen definieren zulässige Werte. <code>sh:minCount</code> verlangt vorhandene Werte, <code>sh:maxCount</code> begrenzt ihre Zahl und <code>sh:nodeKind sh:IRI</code> verlangt Ressourcenkennungen statt Textliteralen. Maßgeblich ist die <a href="#quelle-1">W3C-Empfehlung [1]</a>.</p>
+<p>Eine IRI ist dabei eine Kennung, kein Beleg für einen erfolgreichen Dokumentabruf. Das RDF-Modell unterscheidet Ressourcenkennungen und Literale; eine Zeichenfolge mit einer Adresse ist nicht dasselbe wie die entsprechende IRI. Die Begriffe erläutert <a href="#quelle-2">RDF 1.1 [2]</a>.</p>
+
+<h2 id="beispiel">Ein vollständiges SHACL-Beispiel mit Python</h2>
+<p>Die drei folgenden Blöcke als <code>data.ttl</code>, <code>shapes.ttl</code> und <code>validate_graph.py</code> in einem eigenen Arbeitsordner speichern. Benötigt werden Python, RDFLib und pySHACL. Geprüft wurde dieses Beispiel mit Python 3.14, RDFLib 7.6.0 und pySHACL 0.40.1. Für reproduzierbare Versuche diese Versionen in einer separaten Umgebung verwenden; bestehende Projektumgebungen nicht ungeprüft aktualisieren.</p>
+<h3>1. Datengraph: eine Entscheidung mit Verweisen</h3>
+<pre role="region" tabindex="0" aria-label="Datengraph data.ttl"><code class="language-turtle">@prefix ex: &lt;https://example.org/engineering/&gt; .
+
+ex:decision-17 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:document-4 ;
+    ex:evidence ex:test-9 .</code></pre>
+<p><code>ex:</code> ist ein frei gewähltes Beispielvokabular. Weder das Dokument noch der Test werden hier inhaltlich beschrieben. Diese bewusst kleine Datenbasis hilft, die Grenze zwischen „Verweis vorhanden“ und „Nachweis belastbar“ sichtbar zu machen.</p>
+<h3>2. Shapes-Graph: der Vertrag für den Review-Export</h3>
+<pre role="region" tabindex="0" aria-label="Prüfregeln shapes.ttl"><code class="language-turtle">@prefix ex: &lt;https://example.org/engineering/&gt; .
+@prefix sh: &lt;http://www.w3.org/ns/shacl#&gt; .
+
+ex:ReviewShape a sh:NodeShape ;
+    sh:targetClass ex:Decision ;
+    sh:targetSubjectsOf ex:status ;
+    sh:class ex:Decision ;
+    sh:property [
+        sh:path ex:status ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:hasValue ex:ReadyForReview
+    ] ;
+    sh:property [
+        sh:path ex:source ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path ex:evidence ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI
+    ] .</code></pre>
+<p>Die beiden Targets bilden eine Vereinigung: erfasst werden als <code>ex:Decision</code> klassifizierte Knoten sowie Knoten mit <code>ex:status</code>. Zusammen mit <code>sh:class</code> fällt dadurch auch ein Statusdatensatz ohne passende Klassifizierung auf. <code>sh:hasValue</code> und die Kardinalität verlangen zusammen genau den vorgesehenen Status. Siehe <a href="#quelle-1">Targets und Constraints [1]</a>.</p>
+<p>Diese Absicherung hat eine klare Grenze: Fehlen einem Datensatz sowohl Typ als auch Status, greifen unsere Targets nicht. Auch ein leerer Export benötigt deshalb eine separate Vollständigkeitskontrolle gegen die erwarteten Kennungen. Mehr Regeln für Werte lösen keine Lücke in der Auswahl der zu prüfenden Datensätze.</p>
+<h3>3. Prüfung starten und Ergebnis zurückgeben</h3>
+<pre role="region" tabindex="0" aria-label="Python-Prüfung validate_graph.py"><code class="language-python">from rdflib import Graph
+from pyshacl import validate
+
+data = Graph().parse("data.ttl", format="turtle")
+shapes = Graph().parse("shapes.ttl", format="turtle")
+
+conforms, report_graph, report_text = validate(
+    data,
+    shacl_graph=shapes,
+    inference="none",
+    meta_shacl=True,
+    advanced=False,
+    allow_infos=False,
+    allow_warnings=False,
+)
+print(report_text)
+raise SystemExit(0 if conforms else 1)</code></pre>
+<p>Mit <code>python validate_graph.py</code> aus diesem Ordner starten. Der unveränderte Beispieldatensatz soll bestehen. Bei einem Regelverstoß endet das Skript mit Status 1. Es schreibt keine Eingabedateien um. pySHACL liefert Konformität, einen RDF-Ergebnisgraphen und einen lesbaren Bericht; <code>meta_shacl=True</code> prüft zusätzlich den Shapes-Graphen. Die gewählten Optionen sind in der <a href="#quelle-3">offiziellen Projektdokumentation [3]</a> beschrieben.</p>
+<p><code>inference="none"</code> hält den Versuch ohne zusätzliche RDFS-/OWL-Inferenz. Das ist eine bewusst begrenzte Testkonfiguration. Wird später mit anderen Inferenzoptionen oder einer Ontologie gearbeitet, muss genau diese Konfiguration erneut geprüft werden. Syntax- oder Ausführungsfehler sind ebenfalls fehlgeschlagene Prüfungen, keine Freigabe.</p>
+
+<h2 id="gegenproben">Nicht nur den Erfolgsfall testen</h2>
+<p>Jede Änderung in der folgenden Liste einzeln auf eine frische Kopie des Beispiels anwenden. So lässt sich ein Ergebnis seiner Ursache zuordnen. Die Gegenproben wurden automatisiert ausgeführt; sie bestätigen das Verhalten dieses Lehrbeispiels, nicht die Qualität eines realen Engineering-Datenbestands.</p>
+<ul>
+<li><strong>Quellenverweis entfernen:</strong> muss scheitern. Damit wird geprüft, ob ein fehlender Pflichtwert auffällt.</li>
+<li><strong>Nachweis durch <code>"test-9"</code> ersetzen:</strong> muss scheitern. Ein Textliteral erfüllt die geforderte IRI-Bedingung nicht.</li>
+<li><strong>Zweiten Status ergänzen:</strong> muss scheitern. Zwei unterschiedliche Werte verletzen die vereinbarte Eindeutigkeit.</li>
+<li><strong>Nur den Typ entfernen, Status behalten:</strong> muss scheitern. Das zweite Target verhindert hier einen unbemerkten Ausschluss.</li>
+<li><strong>Typ und Status gemeinsam entfernen:</strong> besteht in diesem Beispiel, obwohl noch Verweise vorhanden sind. Das ist die gezielt demonstrierte Abdeckungslücke.</li>
+<li><strong>Eine nicht aufgelöste Nachweis-IRI einsetzen:</strong> besteht. Unsere Regeln verlangen eine Kennung, nicht deren Inhalt oder Erreichbarkeit.</li>
+</ul>
+<p>Für die Bearbeitung eines Fehlers zuerst den betroffenen Knoten, dann den Eigenschaftspfad und die verletzte Regel betrachten. Diese Angaben sind Bestandteile des <a href="#quelle-1">SHACL-Ergebnisberichts [1]</a>. Eine fachliche Fehlermeldung sollte zusätzlich erläutern, welches Team welche Daten ergänzen muss. Den Text eines Validators unverändert an alle Beteiligten weiterzuleiten, ist selten eine brauchbare Arbeitsanweisung.</p>
+
+<h2 id="betrieb">Aus dem Beispiel eine belastbare Eingangskontrolle machen</h2>
+<p>Für einen praktischen Einsatz empfehle ich vier getrennte Prüfebenen. Diese Aufteilung ist eine technische Arbeitsweise, keine zusätzliche Behauptung des Standards:</p>
+<ol>
+<li><strong>Abdeckung:</strong> Erwartete Entscheidungskennungen aus dem Exportauftrag mit den tatsächlich geprüften Kennungen vergleichen. Fehlende oder leere Lieferungen nicht still akzeptieren.</li>
+<li><strong>Struktur:</strong> Pflichtwerte, erlaubte Zustände und Verknüpfungen prüfen. Für jeden Vertrag mindestens einen gültigen und mehrere gezielt ungültige Testfälle versionieren.</li>
+<li><strong>Nachweise:</strong> Dokumentversion, Zugriff, Anwendbarkeit und Testbedingungen gesondert bewerten. Ein vorhandener Verweis darf nicht automatisch „bestätigt“ bedeuten.</li>
+<li><strong>Fachliches Review:</strong> Eine verantwortliche Person entscheidet, ob die Evidenz die konkrete Aussage trägt. Offene Punkte bleiben explizit offen.</li>
+</ol>
+<p>Zum Prüfprotokoll gehören Datenstand, Shapes-Version, Bibliotheksversionen, Optionen und Ergebnis. Bei einer Regeländerung alte und neue Regeln gegen denselben Testbestand ausführen. Sonst bleibt unklar, ob eine veränderte Fehlerzahl aus besseren Daten oder einer schwächeren Prüfung stammt. Regeln und Daten sollten gemeinsam nachvollziehbar sein, aber getrennte Verantwortlichkeiten behalten.</p>
+<p>Bei einer Bildverarbeitungsentscheidung könnte der Nachweis später auf einen dokumentierten <a href="/insights/opencv-schwellwert-otsu-adaptiv-python">Vergleich von Segmentierungsverfahren</a> verweisen. Dann muss das Review weiterhin klären, ob Bilder, Beleuchtung und Akzeptanzkriterien zur aktuellen Aufgabe passen. SHACL nimmt diese fachliche Beurteilung nicht ab.</p>
+
+<h2>Häufige Fragen</h2>
+<h3>Beweist ein grüner Bericht die Richtigkeit des Knowledge Graphs?</h3>
+<p>Nein. Er bedeutet nur, dass die tatsächlich ausgewählten Daten die tatsächlich ausgeführten Regeln erfüllen. Unser Beispiel besteht sogar mit einem inhaltlich unbeschriebenen Nachweis. Für die Nutzung einer technischen Aussage sind Abdeckung und Evidenz deshalb eigene Prüfschritte.</p>
+<h3>Muss ich sofort alle Eigenschaften verbieten, die nicht definiert sind?</h3>
+<p>Für diesen Einstieg empfehle ich das nicht. Zuerst wenige wichtige Übergaberegeln stabilisieren. Zusätzliche Metadaten wie Bearbeitungsnotizen sollen hier nicht allein deshalb zum Fehler werden, weil sie im kleinen Review-Vertrag nicht vorkommen.</p>
+<h3>Kann damit ein KI-generierter Graph freigegeben werden?</h3>
+<p>Nicht allein. Auch plausibel strukturierte Behauptungen können fachlich falsch sein. Ein sinnvoller Ablauf prüft Struktur automatisiert, vergleicht Aussagen mit ihren tatsächlichen Quellen und eskaliert unbelegte Zusammenhänge an das fachliche Review.</p>
+<aside class="article-next-step" aria-label="Passende Leistung"><h2>Technisches Wissen nachvollziehbar strukturieren?</h2><p>Ich unterstütze bei der Modellierung technischer Begriffe, Entscheidungen und Abhängigkeiten sowie bei verständlicher Dokumentation.</p><a class="text-link" href="/consulting">Technische Beratung und Knowledge Graphs →</a></aside>
+<h2>Primärquellen</h2>
+<ol><li id="quelle-1"><a href="https://www.w3.org/TR/shacl/">W3C: Shapes Constraint Language (SHACL), Recommendation</a></li><li id="quelle-2"><a href="https://www.w3.org/TR/rdf11-concepts/">W3C: RDF 1.1 Concepts and Abstract Syntax</a></li><li id="quelle-3"><a href="https://github.com/RDFLib/pySHACL">RDFLib: pySHACL – offizielle Dokumentation und Quellcode</a></li></ol>
+<p class="article__source-note">Quellen geprüft am 25. September 2026. Vokabular, Beispieldaten, Gegenproben und Einführungsvorgehen sind eigene Lehr- und Modellierungsvorschläge. Es werden keine betrieblichen Daten oder Projektergebnisse veröffentlicht.</p>
+</article></main>
+<footer class="site-footer"><div class="container"><ul class="footer-nav"><li><a href="/insights">Insights</a></li><li><a href="/uebermich">Über mich</a></li><li><a href="/consulting">Consulting</a></li><li><a href="/dozententaetigkeit">Dozententätigkeit</a></li><li><a href="/nachhilfe">Nachhilfe</a></li><li><a href="/kontakt">Kontakt</a></li></ul><ul class="footer-legal"><li><a href="/impressum">Impressum</a></li><li><a href="/datenschutz">Datenschutz</a></li><li><a href="/agb">Allgemeine Geschäftsbedingungen (AGB)</a></li><li><a href="/widerruf">Widerruf</a></li></ul><p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p></div></footer>
+<script src="/js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
