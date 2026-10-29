@@ -54,6 +54,32 @@ oder eine JavaScript-Weiterleitung ersetzt diese Migration nicht.
 
 ## Lokal testen
 
+Automatisierte Desktop-/Mobilprüfung ohne angemeldeten Benutzerbrowser:
+
+```bash
+npm ci
+npx playwright install chromium
+python scripts/check_site.py
+npm test
+```
+
+Der Test startet und beendet den lokalen Vorschau-Server selbst. Er verwendet
+ein frisches Chromium-Profil und lässt nur Anfragen an localhost zu; Kontaktformulare
+werden nicht abgesendet. Er prüft alle Quellseiten bei 1280 und 390 Pixel Breite,
+Darstellungsüberlauf, lokale Ressourcen, JavaScript-Fehler und bei Artikeln
+Sprachwechsel sowie das mobile Menü. Screenshots für die Sichtprüfung liegen in
+`tmp/browser-results/`. In GitHub Actions läuft dieselbe Prüfung für Pull Requests.
+Eine technische Prüfung ersetzt nicht das Ansehen der Screenshots neuer Artikel.
+
+Für die ausführbaren Flächenbeispiele zusätzlich in einer separaten Python-Umgebung
+`opencv-python-headless==4.13.0.92` und `numpy==2.5.4` installieren und
+`python scripts/test_area_article.py` ausführen.
+
+Fehlende Sitzungen für Cloudflare oder Search Console werden im Bericht vermerkt.
+Sie verhindern die lokale Sichtprüfung nicht. Eine Sicherheitsblockade des
+angemeldeten Browsers darf nicht umgangen werden; dieser Browser wird für die
+lokalen Softwaretests nicht benötigt.
+
 Die Seite kann direkt über `index.html` geöffnet werden. Für realistische
 Pfad- und Linktests empfiehlt sich ein lokaler Server:
 
