@@ -163,7 +163,11 @@ def main():
     canonical_urls = set()
     indexable_titles = {}
     indexable_descriptions = {}
-    html_files = sorted(ROOT.rglob("*.html"))
+    excluded = {".git", "node_modules", "tmp", "test-results", "playwright-report"}
+    html_files = sorted(
+        page for page in ROOT.rglob("*.html")
+        if not excluded.intersection(page.relative_to(ROOT).parts)
+    )
     page_parsers = {}
     for target_page in html_files:
         target_parser = PageParser()

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenCV: Pixel Count vs Contour Area | Sara Hofmann</title>
+<meta name="description" content="Compare pixel count and contour area with OpenCV and Python: runnable example, holes, connectivity and a test plan for small image features.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://sarahofmann.de/en/insights/opencv-pixel-area-contour-area-python">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/insights/opencv-pixelflaeche-konturflaeche-python">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/insights/opencv-pixel-area-contour-area-python">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/insights/opencv-pixelflaeche-konturflaeche-python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenCV with Python: comparing pixel count and contour area">
+<meta property="og:description" content="Compare pixel count and contour area with OpenCV and Python: runnable example, holes, connectivity and a test plan for small image features.">
+<meta property="og:url" content="https://sarahofmann.de/en/insights/opencv-pixel-area-contour-area-python">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:site_name" content="Sara Hofmann">
+<meta property="article:published_time" content="2026-10-29">
+<meta property="article:modified_time" content="2026-10-29">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenCV with Python: comparing pixel count and contour area">
+<meta name="twitter:description" content="Compare pixel count and contour area with OpenCV and Python: runnable example, holes, connectivity and a test plan for small image features.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="/assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="/css/style.css?v=20260911">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "OpenCV with Python: comparing pixel count and contour area",
+  "description": "Compare pixel count and contour area with OpenCV and Python: runnable example, holes, connectivity and a test plan for small image features.",
+  "datePublished": "2026-10-29",
+  "dateModified": "2026-10-29",
+  "inLanguage": "en",
+  "mainEntityOfPage": "https://sarahofmann.de/en/insights/opencv-pixel-area-contour-area-python",
+  "author": {
+    "@type": "Person",
+    "name": "Sara Hofmann",
+    "url": "https://sarahofmann.de/en/about",
+    "@id": "https://sarahofmann.de/uebermich#person"
+  },
+  "publisher": {
+    "@id": "https://sarahofmann.de/#business"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="site-header__inner">
+<a class="brand" href="/en/" aria-label="Sara Hofmann – Home"><img src="/assets/images/logo-transparent.png" alt="Sara Hofmann – Freelance Engineer &amp; Consultant" width="600" height="600"></a>
+<nav class="main-nav" id="main-nav" aria-label="Main navigation"><ul class="main-nav__list"><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul></nav>
+<div class="header-actions"><nav class="lang-switcher" aria-label="Choose language">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+<a href="/insights/opencv-pixelflaeche-konturflaeche-python" lang="de" hreflang="de">DE</a><span aria-hidden="true">/</span><a href="/en/insights/opencv-pixel-area-contour-area-python" lang="en" hreflang="en" aria-current="page">EN</a>
+</nav><a class="cv-badge" href="/en/cv" aria-label="CV – currently being updated">CV</a><button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button></div>
+</div></header>
+<main id="main"><article class="article article--technical">
+<a class="back-link" href="/en/insights">← All insights</a>
+<p class="eyebrow">Machine vision · Python · Area analysis</p>
+<h1 class="gradient-text">OpenCV with Python: comparing pixel count and contour area</h1>
+<p class="article__meta"><time datetime="2026-10-29">29 October 2026</time> · Written by <a href="/en/about" rel="author">Sara Hofmann</a></p>
+
+<p><strong>Why does OpenCV report different areas for the same object?</strong> A binary mask contains discrete image pixels; a contour describes a geometric boundary. Transferring thresholds between these representations can lead to incorrect decisions about small features. This guide uses Python to explain when <code>connectedComponentsWithStats</code> and <code>contourArea</code> fit the question.</p>
+<p>The examples use synthetic masks only. Their numbers are reproducible calculations, not measurements from client projects. The upstream segmentation step is covered in the guide to <a href="/en/insights/opencv-thresholding-otsu-adaptive-python">fixed, Otsu and adaptive thresholds</a>.</p>
+<nav class="article-toc" aria-label="Contents"><h2>On this page</h2><ul><li><a href="#area">Which area do you need?</a></li><li><a href="#python">Runnable Python example</a></li><li><a href="#pitfalls">Holes and connected objects</a></li><li><a href="#validation">An application test plan</a></li></ul></nav>
+<h2 id="area">Pixel count and contour area answer different questions</h2>
+<p><code>CC_STAT_AREA</code> reports the number of pixels belonging to a connected component. <code>contourArea</code> instead calculates the area enclosed by a contour using Green's formula. The official <a href="#source-api">OpenCV API reference [1]</a> explicitly notes that the values can differ. Self-intersecting contours require particular care.</p>
+<p>For a requirement such as “How many foreground pixels belong to this segmented spot?”, component statistics are a direct starting point. For boundary geometry or further shape features, contours are useful. The <a href="#source-features">contour features tutorial [3]</a> explains their relationship to perimeter, moments and bounding rectangles.</p>
+<p>Start the technical choice with a definition: do holes count towards the area? Are touching objects assessed together? Does the limit refer to image pixels, a geometric image area or a physical area on the part? Without that definition, a numerically precise result remains ambiguous for the application.</p>
+<h2 id="python">Python example: compare a square with a square containing a hole</h2>
+<p>You need Python, NumPy and OpenCV. The code was checked with OpenCV 4.13.0 and NumPy 2.5.4. Save it as <code>area_comparison.py</code> and run <code>python area_comparison.py</code>. It loads no images and writes no files. For your own mask, the function requires a non-empty, two-dimensional <code>uint8</code> array containing values 0 and 255.</p>
+<pre role="region" tabindex="0" aria-label="Python: compare_areas"><code class="language-python">import cv2 as cv
+import numpy as np
+
+
+def compare_areas(mask, connectivity=8):
+    if not isinstance(mask, np.ndarray):
+        raise ValueError("Expected a NumPy array.")
+    if mask.ndim != 2 or mask.dtype != np.uint8 or mask.size == 0:
+        raise ValueError("Expected a non-empty 2-D uint8 mask.")
+    if not np.isin(mask, [0, 255]).all():
+        raise ValueError("Mask values must be 0 or 255.")
+    if connectivity not in (4, 8):
+        raise ValueError("Connectivity must be 4 or 8.")
+
+    count, labels, stats, _ = cv.connectedComponentsWithStats(
+        mask, connectivity=connectivity, ltype=cv.CV_32S
+    )
+    contours, _ = cv.findContours(
+        mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+    )
+    return {
+        "objects": count - 1,
+        "pixel_areas": sorted(
+            int(stats[i, cv.CC_STAT_AREA]) for i in range(1, count)
+        ),
+        "outer_contour_areas": sorted(
+            float(cv.contourArea(c)) for c in contours
+        ),
+    }
+
+
+if __name__ == "__main__":
+    square = np.zeros((20, 20), dtype=np.uint8)
+    square[5:15, 5:15] = 255
+    ring = square.copy()
+    ring[8:12, 8:12] = 0
+    print("OpenCV:", cv.__version__)
+    print("square:", compare_areas(square))
+    print("ring:", compare_areas(ring))</code></pre>
+<p>The filled square has 100 foreground pixels and an outer contour area of 81. Its contour follows the outermost pixel coordinates: ten pixel positions span nine coordinate steps in each direction. Removing the 4 × 4 pixel hole leaves 84 foreground pixels, while the outer contour area remains 81.</p>
+<p>This difference is expected in the example. The function returns two separate lists. It deliberately does not associate individual contours with component labels. Applications that need one combined record per object must implement and test that association separately.</p>
+<h2 id="pitfalls">Three pitfalls in object analysis</h2>
+<h3>1. Missing holes when using an outer contour</h3>
+<p><code>RETR_EXTERNAL</code> is a deliberate choice here: the code considers outer contours only. A hole does not change the outer boundary in this example. For raster-based material area, the hole's background pixels are not counted. To describe internal geometry, examine contour hierarchy; the <a href="#source-contours">OpenCV contours tutorial [2]</a> provides an introduction.</p>
+<p>A simple rule of “outer area minus every inner area” needs tested hierarchy logic when islands are nested inside holes. A different retrieval mode alone does not define the correct material area. Start with a small counterexample containing known holes and islands for the intended task.</p>
+<h3>2. Counting diagonal contact differently</h3>
+<p>The component function supports 4-way and 8-way connectivity. Two foreground pixels touching only diagonally are counted separately in the first case and together in the second. Label 0 represents the background, so the example subtracts one from the label count. See <a href="#source-api">reference [1]</a>.</p>
+<p>Document this choice. Otherwise, a scratch represented by a diagonal pixel chain can suddenly become multiple objects after a parameter change. Contour extraction does not receive the <code>connectivity</code> argument; the two analysis paths therefore do not automatically provide identical object catalogues.</p>
+<h3>3. Converting pixel counts to square millimetres without checking geometry</h3>
+<p>An image area is not yet a verified physical area on a part. Physical assessment requires a defined geometry, scale and valid working range. The <a href="/en/insights/opencv-camera-calibration-python">camera calibration guide</a> covers the geometric prerequisites. Do not transfer a single conversion factor to other distances or camera configurations without checking its applicability.</p>
+<h2 id="validation">A practical validation plan</h2>
+<ol>
+<li><strong>Name the quantity:</strong> for example, foreground pixels per component, with explicit rules for holes and connectivity.</li>
+<li><strong>Check known masks:</strong> a filled rectangle, a hole, a single pixel, diagonal contact and an entirely empty mask.</li>
+<li><strong>Add boundary cases:</strong> objects clipped by the image border, narrow bridges and small segmentation errors. Record expectations before comparing results.</li>
+<li><strong>Assess real images:</strong> compare the same analysis with technically reviewed references under permitted acquisition conditions.</li>
+<li><strong>Record the configuration:</strong> document mask generation, ROI, connectivity, area definition, software versions and acceptance criterion together.</li>
+</ol>
+<p>This plan is an original engineering recommendation. It does not replace application-specific approval. Passing synthetic-mask tests demonstrates the agreed calculation logic for those cases. The quality of segmentation on real features requires a separate investigation.</p>
+<h2>Frequently asked questions</h2>
+<h3>Is the smaller contour area a rounding error?</h3>
+<p>Not for the square shown here. The results follow different definitions of area. A blanket correction would obscure that definition and would not be justified for other shapes.</p>
+<h3>Which method should I use for small defects?</h3>
+<p>If the decision explicitly depends on the number of segmented image pixels, start with pixel count per component. Also check whether small mask changes alter the decision unacceptably. Changing the area algorithm cannot reliably compensate for unstable segmentation.</p>
+<aside class="article-next-step" aria-label="Related service"><h2>Analyse image features traceably?</h2><p>I support industrial machine vision with Python, prototypical image-data evaluation and clear documentation of results and limitations.</p><a class="text-link" href="/en/industrial-machine-vision-python">Industrial machine vision with Python →</a></aside>
+<h2>Primary sources</h2>
+<ol><li id="source-api"><a href="https://docs.opencv.org/4.13.0/d3/dc0/group__imgproc__shape.html">OpenCV 4.13: Structural Analysis and Shape Descriptors</a></li><li id="source-contours"><a href="https://docs.opencv.org/4.13.0/d4/d73/tutorial_py_contours_begin.html">OpenCV 4.13: Contours – Getting Started</a></li><li id="source-features"><a href="https://docs.opencv.org/4.13.0/dd/d49/tutorial_py_contour_features.html">OpenCV 4.13: Contour Features</a></li></ol>
+<p class="article__source-note">Sources checked on 29 October 2026. Code, synthetic counterexamples and test plan are original teaching examples and engineering recommendations.</p>
+</article></main>
+<footer class="site-footer"><div class="container"><ul class="footer-nav"><li><a href="/en/insights">Insights</a></li><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul><ul class="footer-legal"><li><a href="/impressum">Legal notice (German)</a></li><li><a href="/datenschutz">Privacy policy (German)</a></li><li><a href="/agb">Terms (German)</a></li><li><a href="/widerruf">Cancellation policy (German)</a></li></ul><p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p></div></footer>
+<script src="/js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
