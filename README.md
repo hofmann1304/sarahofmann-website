@@ -75,6 +75,11 @@ Für die ausführbaren Flächenbeispiele zusätzlich in einer separaten Python-U
 `opencv-python-headless==4.13.0.92` und `numpy==2.5.4` installieren und
 `python scripts/test_area_article.py` ausführen.
 
+Die SPARQL-Beispiele verwenden `rdflib==7.6.0` in einer separaten
+Python-Umgebung. `python scripts/test_sparql_article.py` prüft die tatsächlichen
+Codeblöcke beider Übersetzungen einschließlich fehlender Bindungen,
+Mehrfachzeilen, Auswahlgrenzen und lokaler Ausführung.
+
 Fehlende Sitzungen für Cloudflare oder Search Console werden im Bericht vermerkt.
 Sie verhindern die lokale Sichtprüfung nicht. Eine Sicherheitsblockade des
 angemeldeten Browsers darf nicht umgangen werden; dieser Browser wird für die

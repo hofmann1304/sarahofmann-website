@@ -20,9 +20,11 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: python scripts/check_site.py
-      - run: python -m pip install opencv-python-headless==4.13.0.92 numpy==2.5.4
+      - run: python -m pip install opencv-python-headless==4.13.0.92 numpy==2.5.4 rdflib==7.6.0
       - run: python scripts/test_area_article.py
+      - run: python scripts/test_sparql_article.py
       - run: python scripts/validate_html.py insights/opencv-pixelflaeche-konturflaeche-python.html en/insights/opencv-pixel-area-contour-area-python.html
+      - run: python scripts/validate_html.py insights/sparql-fehlende-nachweise-knowledge-graph.html en/insights/sparql-missing-evidence-knowledge-graph.html
       - run: git diff --check
       - run: npm test
       - uses: actions/upload-artifact@v4
