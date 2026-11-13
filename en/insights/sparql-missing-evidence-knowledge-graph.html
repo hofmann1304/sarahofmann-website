@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPARQL: Find Missing Evidence | Sara Hofmann</title>
+<meta name="description" content="Find missing evidence with SPARQL: runnable knowledge-graph examples explaining FILTER NOT EXISTS, OPTIONAL and DISTINCT, with a local Python runner.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://sarahofmann.de/en/insights/sparql-missing-evidence-knowledge-graph">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/insights/sparql-fehlende-nachweise-knowledge-graph">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/insights/sparql-missing-evidence-knowledge-graph">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/insights/sparql-fehlende-nachweise-knowledge-graph">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SPARQL: finding missing evidence in engineering knowledge graphs">
+<meta property="og:description" content="Find missing evidence with SPARQL: runnable knowledge-graph examples explaining FILTER NOT EXISTS, OPTIONAL and DISTINCT, with a local Python runner.">
+<meta property="og:url" content="https://sarahofmann.de/en/insights/sparql-missing-evidence-knowledge-graph">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:site_name" content="Sara Hofmann">
+<meta property="article:published_time" content="2026-11-13">
+<meta property="article:modified_time" content="2026-11-13">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SPARQL: finding missing evidence in engineering knowledge graphs">
+<meta name="twitter:description" content="Find missing evidence with SPARQL: runnable knowledge-graph examples explaining FILTER NOT EXISTS, OPTIONAL and DISTINCT, with a local Python runner.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="/assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="/css/style.css?v=20260911">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "SPARQL: finding missing evidence in engineering knowledge graphs",
+  "description": "Find missing evidence with SPARQL: runnable knowledge-graph examples explaining FILTER NOT EXISTS, OPTIONAL and DISTINCT, with a local Python runner.",
+  "datePublished": "2026-11-13",
+  "dateModified": "2026-11-13",
+  "inLanguage": "en",
+  "mainEntityOfPage": "https://sarahofmann.de/en/insights/sparql-missing-evidence-knowledge-graph",
+  "author": {
+    "@type": "Person",
+    "name": "Sara Hofmann",
+    "url": "https://sarahofmann.de/en/about",
+    "@id": "https://sarahofmann.de/uebermich#person"
+  },
+  "publisher": {
+    "@id": "https://sarahofmann.de/#business"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="site-header__inner">
+<a class="brand" href="/en/" aria-label="Sara Hofmann – Home"><img src="/assets/images/logo-transparent.png" alt="Sara Hofmann – Freelance Engineer &amp; Consultant" width="600" height="600"></a>
+<nav class="main-nav" id="main-nav" aria-label="Main navigation"><ul class="main-nav__list"><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul></nav>
+<div class="header-actions"><nav class="lang-switcher" aria-label="Choose language">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+<a href="/insights/sparql-fehlende-nachweise-knowledge-graph" lang="de" hreflang="de">DE</a><span aria-hidden="true">/</span><a href="/en/insights/sparql-missing-evidence-knowledge-graph" lang="en" hreflang="en" aria-current="page">EN</a>
+</nav><a class="cv-badge" href="/en/cv" aria-label="CV – currently being updated">CV</a><button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button></div>
+</div></header>
+<main id="main"><article class="article article--technical">
+<a class="back-link" href="/en/insights">← All insights</a>
+<p class="eyebrow">Knowledge graphs · SPARQL · Engineering</p>
+<h1 class="gradient-text">SPARQL: finding missing evidence in engineering knowledge graphs</h1>
+<p class="article__meta"><time datetime="2026-11-13">13 November 2026</time> · Written by <a href="/en/about" rel="author">Sara Hofmann</a></p>
+
+<p><strong>How do you find engineering decisions that are missing evidence?</strong> A knowledge-graph query can expose that gap. The crucial distinction is whether you mean “no reference exists” or “no qualifying evidence is recorded”. This guide presents three executable SPARQL queries and explains their different results.</p>
+<p>The <a href="/en/insights/shacl-knowledge-graph-validation-python">SHACL guide</a> covers rules for a review export. Here the complementary focus is on actionable lists and on why an apparently complete report can hide gaps. All data and identifiers are invented teaching examples. No employer or client information is used.</p>
+<nav class="article-toc" aria-label="Contents"><h2>On this page</h2><ul><li><a href="#data">Small example dataset</a></li><li><a href="#missing">Find missing references</a></li><li><a href="#qualified">Require qualifying evidence</a></li><li><a href="#report">OPTIONAL and multiple rows</a></li><li><a href="#run">Run and check locally</a></li></ul></nav>
+<h2 id="data">Four decisions, three different gaps</h2>
+<p>The example export contains four decisions in the <code>ex:ReadyForReview</code> state. The custom <code>ex:</code> vocabulary is not an industry standard. For this experiment, qualifying evidence means only an IRI linked through <code>ex:evidence</code> with the recorded statement <code>ex:passed true</code>. This deliberately narrow rule does not constitute engineering approval.</p>
+<p>Save the next block as <code>decisions.ttl</code>. <code>d1</code> has two sources and a test marked as passed. <code>d2</code> has no evidence reference. <code>d3</code> references a test marked as failed. <code>d4</code> contains a text literal instead of a resource identifier.</p>
+<pre role="region" tabindex="0" aria-label="Example data decisions.ttl"><code class="language-turtle">@prefix ex: &lt;https://example.org/engineering/&gt; .
+
+ex:d1 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:docA, ex:docB ;
+    ex:evidence ex:testA .
+ex:d2 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:docC .
+ex:d3 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:docD ;
+    ex:evidence ex:testB .
+ex:d4 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:docE ;
+    ex:evidence "test-C" .
+
+ex:testA ex:passed true .
+ex:testB ex:passed false .</code></pre>
+<p>Selecting decisions is part of the validation brief: we consider explicitly classified decisions with this exact recorded status. A record without the type or status does not appear in the following work lists. Establish separately which identifiers are expected before interpreting the results.</p>
+<h2 id="missing">Query 1: no evidence reference exists</h2>
+<p><code>FILTER NOT EXISTS</code> checks whether the inner pattern has no match for the current outer solution. The variable <code>?decision</code> connects the two parts. The normative reference is <a href="#source-1">SPARQL 1.1, section 8.1.1 [1]</a>. Save the first query as <code>missing.rq</code>:</p>
+<pre role="region" tabindex="0" aria-label="SPARQL missing.rq"><code class="language-sparql">PREFIX ex: &lt;https://example.org/engineering/&gt;
+SELECT DISTINCT ?decision
+WHERE {
+  ?decision a ex:Decision ;
+            ex:status ex:ReadyForReview .
+  FILTER NOT EXISTS { ?decision ex:evidence ?evidence . }
+}
+ORDER BY ?decision</code></pre>
+<p><strong>Result: only <code>ex:d2</code>.</strong> <code>d3</code> has a reference even though its test failed. The literal on <code>d4</code> also satisfies the simple triple pattern. Calling this list “decisions without adequate evidence” therefore promises more than the query checks.</p>
+<p>I recommend a precise report label: “no evidence reference in the checked data snapshot”. This leaves open whether evidence exists elsewhere, has not been imported yet or is actually missing.</p>
+<h2 id="qualified">Query 2: no evidence meeting the agreed rule</h2>
+<p>The second query adds the agreed conditions inside the inner pattern. <code>isIRI</code> checks the RDF term's kind; it does not check a source's availability or correctness. The function is defined in <a href="#source-1">section 17.4.2.1 [1]</a>. Save this as <code>qualified.rq</code>:</p>
+<pre role="region" tabindex="0" aria-label="SPARQL qualified.rq"><code class="language-sparql">PREFIX ex: &lt;https://example.org/engineering/&gt;
+SELECT DISTINCT ?decision
+WHERE {
+  ?decision a ex:Decision ;
+            ex:status ex:ReadyForReview .
+  FILTER NOT EXISTS {
+    ?decision ex:evidence ?evidence .
+    FILTER(isIRI(?evidence))
+    ?evidence ex:passed true .
+  }
+}
+ORDER BY ?decision</code></pre>
+<p><strong>Result: <code>ex:d2</code>, <code>ex:d3</code> and <code>ex:d4</code>.</strong> This list combines different causes: no reference, no test recorded as passed or an unsuitable value type. Add a cause-oriented view when assigning the work. A common “not satisfied” condition is useful for filtering but is not yet a practical instruction.</p>
+<p>This rule also has a clear limit. An outdated or inapplicable test with <code>ex:passed true</code> still satisfies the pattern. The “passed” statement is read, not independently checked. Version, applicability and actual test results therefore belong in the technical assessment. The additional relationship needed depends on the specific engineering question.</p>
+<h2 id="report">Query 3: OPTIONAL retains incomplete records</h2>
+<p>An overview should retain decisions even when supplementary details are missing. <code>OPTIONAL</code> can add available bindings and preserves the outer solution when its optional pattern has no match. This is described in <a href="#source-1">section 6 [1]</a>. Save this as <code>report.rq</code>:</p>
+<pre role="region" tabindex="0" aria-label="SPARQL report.rq"><code class="language-sparql">PREFIX ex: &lt;https://example.org/engineering/&gt;
+SELECT ?decision ?source ?evidence
+WHERE {
+  ?decision a ex:Decision ;
+            ex:status ex:ReadyForReview .
+  OPTIONAL { ?decision ex:source ?source . }
+  OPTIONAL { ?decision ex:evidence ?evidence . }
+}
+ORDER BY ?decision ?source ?evidence</code></pre>
+<p><strong>Result: five rows for four decisions.</strong> <code>d1</code> appears twice because it has two sources. The evidence variable remains unbound for <code>d2</code>. Writing both optional triple patterns as required patterns would remove precisely that problematic record from the report.</p>
+<p>Do not count result rows as decisions without checking the result's grain. To obtain unique identifiers, <code>SELECT DISTINCT ?decision</code> is sufficient here. If source and evidence are also projected, their different combinations remain different even with <code>DISTINCT</code>. Duplicate elimination is specified in <a href="#source-1">section 15.3 [1]</a>.</p>
+<p>Another common trap is applying a filter on an optionally bound variable outside the optional block. This can remove solutions whose value is missing. Whether the filter belongs inside the block or should deliberately exclude the decision follows from the reporting question. Do not exchange those variants without a counterexample.</p>
+<h2 id="run">Run locally with Python and RDFLib</h2>
+<p>Place the four files in a separate working directory. You need Python and RDFLib; the example was checked with Python 3.14 and RDFLib 7.6.0. Install the library in a separate environment with <code>python -m pip install rdflib==7.6.0</code>. Save the following block as <code>query_decisions.py</code> and run <code>python query_decisions.py</code> in that directory:</p>
+<pre role="region" tabindex="0" aria-label="Python query_decisions.py"><code class="language-python">from pathlib import Path
+from rdflib import Graph
+
+graph = Graph().parse("decisions.ttl", format="turtle")
+for name in ("missing", "qualified", "report"):
+    query = Path(name + ".rq").read_text(encoding="utf-8")
+    print(name)
+    for row in graph.query(query):
+        print(tuple(None if value is None else str(value)
+                    for value in row))</code></pre>
+<p>The script reads only the specified local files and uses no remote SPARQL services. It does not modify the graph. RDFLib evaluates queries through <code>Graph.query()</code>; iteration returns the variable values for each result row. See the <a href="#source-2">official RDFLib documentation [2]</a>. This example explicitly prints missing bindings as <code>None</code>.</p>
+<h2>Counterexamples before adoption</h2>
+<ol>
+<li><strong>Add evidence:</strong> link <code>d2</code> to <code>ex:testA</code>. The decision must disappear from both gap lists.</li>
+<li><strong>Add only a second source reference:</strong> the gap lists must stay unchanged; the overview gains another combination.</li>
+<li><strong>Remove a decision's type:</strong> it disappears from the selected population. This demonstrates a selection boundary, not a successful repair.</li>
+<li><strong>Query an empty graph:</strong> no results mean no checked decisions here. Expected identifiers therefore require a separate reconciliation.</li>
+</ol>
+<p>These counterexamples were run automatically against the teaching example. For a production report, document the data snapshot, query version, graph being queried and expected population. When using multiple named graphs, also define which graph supplies decisions and evidence. Searching the wrong data scope can otherwise look like an engineering evidence gap.</p>
+<h2>How do SPARQL and SHACL complement each other?</h2>
+<p>For this workflow, I recommend SPARQL for targeted questions and traceable work lists, and SHACL for an agreed structural contract. Both require domain-defined rules and a checked selection of records. The <a href="/en/insights/knowledge-graphs-industrial-machine-vision">introduction to knowledge graphs in machine vision</a> illustrates how decisions, configurations and evidence can connect.</p>
+<aside class="article-next-step" aria-label="Related service"><h2>Query engineering knowledge traceably?</h2><p>I support structuring technical concepts, decisions and dependencies, along with understandable documentation.</p><a class="text-link" href="/en/consulting">Technical consulting and knowledge graphs →</a></aside>
+<h2>Primary sources</h2>
+<ol><li id="source-1"><a href="https://www.w3.org/TR/sparql11-query/">W3C: SPARQL 1.1 Query Language – especially sections 6, 8.1.1, 15.3 and 17.4.2.1</a></li><li id="source-2"><a href="https://rdflib.readthedocs.io/en/latest/intro_to_sparql/">RDFLib: Querying with SPARQL</a></li></ol>
+<p class="article__source-note">Sources checked on 13 November 2026. Example data, queries and workflow recommendations are original teaching and modelling proposals. They contain no operational information and make no approval claim.</p>
+</article></main>
+<footer class="site-footer"><div class="container"><ul class="footer-nav"><li><a href="/en/insights">Insights</a></li><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul><ul class="footer-legal"><li><a href="/impressum">Legal notice (German)</a></li><li><a href="/datenschutz">Privacy policy (German)</a></li><li><a href="/agb">Terms (German)</a></li><li><a href="/widerruf">Cancellation policy (German)</a></li></ul><p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p></div></footer>
+<script src="/js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

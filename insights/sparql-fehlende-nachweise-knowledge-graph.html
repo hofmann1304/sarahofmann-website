@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPARQL: Fehlende Nachweise finden | Sara Hofmann</title>
+<meta name="description" content="Mit SPARQL fehlende Nachweise finden: FILTER NOT EXISTS, OPTIONAL und DISTINCT anhand ausführbarer Knowledge-Graph-Beispiele mit Python.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://sarahofmann.de/insights/sparql-fehlende-nachweise-knowledge-graph">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/insights/sparql-fehlende-nachweise-knowledge-graph">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/insights/sparql-missing-evidence-knowledge-graph">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/insights/sparql-fehlende-nachweise-knowledge-graph">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SPARQL: Fehlende Nachweise im Engineering Knowledge Graph finden">
+<meta property="og:description" content="Mit SPARQL fehlende Nachweise finden: FILTER NOT EXISTS, OPTIONAL und DISTINCT anhand ausführbarer Knowledge-Graph-Beispiele mit Python.">
+<meta property="og:url" content="https://sarahofmann.de/insights/sparql-fehlende-nachweise-knowledge-graph">
+<meta property="og:locale" content="de_DE">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:site_name" content="Sara Hofmann">
+<meta property="article:published_time" content="2026-11-13">
+<meta property="article:modified_time" content="2026-11-13">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SPARQL: Fehlende Nachweise im Engineering Knowledge Graph finden">
+<meta name="twitter:description" content="Mit SPARQL fehlende Nachweise finden: FILTER NOT EXISTS, OPTIONAL und DISTINCT anhand ausführbarer Knowledge-Graph-Beispiele mit Python.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="/assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="/css/style.css?v=20260911">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "SPARQL: Fehlende Nachweise im Engineering Knowledge Graph finden",
+  "description": "Mit SPARQL fehlende Nachweise finden: FILTER NOT EXISTS, OPTIONAL und DISTINCT anhand ausführbarer Knowledge-Graph-Beispiele mit Python.",
+  "datePublished": "2026-11-13",
+  "dateModified": "2026-11-13",
+  "inLanguage": "de",
+  "mainEntityOfPage": "https://sarahofmann.de/insights/sparql-fehlende-nachweise-knowledge-graph",
+  "author": {
+    "@type": "Person",
+    "name": "Sara Hofmann",
+    "url": "https://sarahofmann.de/uebermich",
+    "@id": "https://sarahofmann.de/uebermich#person"
+  },
+  "publisher": {
+    "@id": "https://sarahofmann.de/#business"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<header class="site-header"><div class="site-header__inner">
+<a class="brand" href="/" aria-label="Sara Hofmann – Startseite"><img src="/assets/images/logo-transparent.png" alt="Sara Hofmann – Freelance Engineer &amp; Consultant" width="600" height="600"></a>
+<nav class="main-nav" id="main-nav" aria-label="Hauptnavigation"><ul class="main-nav__list"><li><a href="/uebermich">Über mich</a></li><li><a href="/consulting">Consulting</a></li><li><a href="/dozententaetigkeit">Dozententätigkeit</a></li><li><a href="/nachhilfe">Nachhilfe</a></li><li><a href="/kontakt">Kontakt</a></li></ul></nav>
+<div class="header-actions"><nav class="lang-switcher" aria-label="Sprache wählen">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+<a href="/insights/sparql-fehlende-nachweise-knowledge-graph" lang="de" hreflang="de" aria-current="page">DE</a><span aria-hidden="true">/</span><a href="/en/insights/sparql-missing-evidence-knowledge-graph" lang="en" hreflang="en">EN</a>
+</nav><a class="cv-badge" href="/lebenslauf" aria-label="Lebenslauf – wird aktualisiert">CV</a><button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button></div>
+</div></header>
+<main id="main"><article class="article article--technical">
+<a class="back-link" href="/insights">← Alle Insights</a>
+<p class="eyebrow">Knowledge Graphs · SPARQL · Engineering</p>
+<h1 class="gradient-text">SPARQL: Fehlende Nachweise im Engineering Knowledge Graph finden</h1>
+<p class="article__meta"><time datetime="2026-11-13">13. November 2026</time> · Verfasst von <a href="/uebermich" rel="author">Sara Hofmann</a></p>
+
+<p><strong>Wie findet man technische Entscheidungen, denen ein Nachweis fehlt?</strong> In einem Knowledge Graph kann eine Abfrage genau diese Lücke sichtbar machen. Entscheidend ist, ob „kein Verweis vorhanden“ oder „kein passender Nachweis dokumentiert“ gemeint ist. Dieser Leitfaden zeigt drei ausführbare SPARQL-Abfragen und ihre unterschiedlichen Ergebnisse.</p>
+<p>Der <a href="/insights/shacl-knowledge-graph-validierung-python">SHACL-Leitfaden</a> behandelt Regeln für einen Review-Export. Hier geht es ergänzend um konkrete Arbeitslisten und die Frage, warum ein scheinbar vollständiger Bericht Lücken verdecken kann. Alle Daten und Kennungen sind frei erfundene Lehrbeispiele. Es werden keine Arbeitgeber- oder Kundendaten verwendet.</p>
+<nav class="article-toc" aria-label="Inhaltsverzeichnis"><h2>Auf dieser Seite</h2><ul><li><a href="#daten">Kleine Beispieldaten</a></li><li><a href="#fehlt">Fehlende Verweise finden</a></li><li><a href="#qualifiziert">Passende Nachweise verlangen</a></li><li><a href="#bericht">OPTIONAL und Mehrfachzeilen</a></li><li><a href="#ausfuehren">Lokal ausführen und prüfen</a></li></ul></nav>
+<h2 id="daten">Vier Entscheidungen, drei verschiedene Lücken</h2>
+<p>Der Beispielexport enthält vier Entscheidungen im Zustand <code>ex:ReadyForReview</code>. Das eigene Vokabular <code>ex:</code> ist kein Industriestandard. Für diesen Versuch bedeutet ein passender Nachweis ausschließlich: eine über <code>ex:evidence</code> verknüpfte IRI mit der gespeicherten Aussage <code>ex:passed true</code>. Diese bewusst enge Regel ist keine technische Freigabe.</p>
+<p>Den folgenden Block als <code>decisions.ttl</code> speichern. <code>d1</code> hat zwei Quellen und einen als bestanden markierten Test. <code>d2</code> hat keinen Nachweisverweis. <code>d3</code> verweist auf einen als nicht bestanden markierten Test. Bei <code>d4</code> steht statt einer Ressourcenkennung ein Textliteral.</p>
+<pre role="region" tabindex="0" aria-label="Beispieldaten decisions.ttl"><code class="language-turtle">@prefix ex: &lt;https://example.org/engineering/&gt; .
+
+ex:d1 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:docA, ex:docB ;
+    ex:evidence ex:testA .
+ex:d2 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:docC .
+ex:d3 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:docD ;
+    ex:evidence ex:testB .
+ex:d4 a ex:Decision ;
+    ex:status ex:ReadyForReview ;
+    ex:source ex:docE ;
+    ex:evidence "test-C" .
+
+ex:testA ex:passed true .
+ex:testB ex:passed false .</code></pre>
+<p>Die Auswahl der Entscheidungen ist Teil des Prüfauftrags: Wir betrachten ausdrücklich klassifizierte Entscheidungen mit genau diesem gespeicherten Status. Ein Datensatz ohne Typ oder Status erscheint in den folgenden Arbeitslisten nicht. Vor der Auswertung sollte daher separat feststehen, welche Kennungen überhaupt erwartet werden.</p>
+<h2 id="fehlt">Abfrage 1: kein Nachweisverweis vorhanden</h2>
+<p><code>FILTER NOT EXISTS</code> prüft, ob das innere Muster für die aktuelle äußere Lösung keinen Treffer hat. Die Variable <code>?decision</code> verbindet beide Teile. Maßgeblich ist <a href="#quelle-1">SPARQL 1.1, Abschnitt 8.1.1 [1]</a>. Die erste Abfrage als <code>missing.rq</code> speichern:</p>
+<pre role="region" tabindex="0" aria-label="SPARQL missing.rq"><code class="language-sparql">PREFIX ex: &lt;https://example.org/engineering/&gt;
+SELECT DISTINCT ?decision
+WHERE {
+  ?decision a ex:Decision ;
+            ex:status ex:ReadyForReview .
+  FILTER NOT EXISTS { ?decision ex:evidence ?evidence . }
+}
+ORDER BY ?decision</code></pre>
+<p><strong>Ergebnis: nur <code>ex:d2</code>.</strong> Für <code>d3</code> existiert ein Verweis, obwohl der Test nicht bestanden ist. Auch das Literal bei <code>d4</code> erfüllt das einfache Tripelmuster. Wer die Ergebnisliste „Entscheidungen ohne belastbare Evidenz“ nennt, verspricht deshalb mehr, als diese Abfrage prüft.</p>
+<p>Meine Empfehlung ist eine präzise Bezeichnung im Bericht: „kein Nachweisverweis im geprüften Datenstand“. Diese Formulierung hält offen, ob der Nachweis an anderer Stelle existiert, noch nicht importiert wurde oder tatsächlich fehlt.</p>
+<h2 id="qualifiziert">Abfrage 2: kein Nachweis nach der vereinbarten Regel</h2>
+<p>Die zweite Abfrage ergänzt die vereinbarten Bedingungen im inneren Muster. <code>isIRI</code> prüft die Art des RDF-Terms; es prüft weder die Erreichbarkeit noch die Richtigkeit einer Quelle. Die Funktionsdefinition steht in <a href="#quelle-1">Abschnitt 17.4.2.1 [1]</a>. Als <code>qualified.rq</code> speichern:</p>
+<pre role="region" tabindex="0" aria-label="SPARQL qualified.rq"><code class="language-sparql">PREFIX ex: &lt;https://example.org/engineering/&gt;
+SELECT DISTINCT ?decision
+WHERE {
+  ?decision a ex:Decision ;
+            ex:status ex:ReadyForReview .
+  FILTER NOT EXISTS {
+    ?decision ex:evidence ?evidence .
+    FILTER(isIRI(?evidence))
+    ?evidence ex:passed true .
+  }
+}
+ORDER BY ?decision</code></pre>
+<p><strong>Ergebnis: <code>ex:d2</code>, <code>ex:d3</code> und <code>ex:d4</code>.</strong> Die Liste fasst unterschiedliche Ursachen zusammen: kein Verweis, kein als bestanden dokumentierter Test oder ein ungeeigneter Werttyp. Für die Bearbeitung empfiehlt sich eine ergänzende Ursachenliste. Ein gemeinsames „nicht erfüllt“ reicht zum Filtern, aber noch nicht als Arbeitsanweisung.</p>
+<p>Auch diese Regel hat eine klare Grenze. Ein veralteter oder unzutreffender Test mit <code>ex:passed true</code> genügt dem Muster. Die Aussage „bestanden“ wird hier gelesen, nicht nachgeprüft. Version, Anwendungsbereich und tatsächliche Prüfergebnisse gehören deshalb in die fachliche Bewertung. Welche zusätzliche Beziehung benötigt wird, ergibt sich aus der konkreten Engineering-Frage.</p>
+<h2 id="bericht">Abfrage 3: OPTIONAL erhält unvollständige Datensätze</h2>
+<p>Für eine Übersicht sollen Entscheidungen auch dann erscheinen, wenn Zusatzangaben fehlen. <code>OPTIONAL</code> kann vorhandene Bindungen ergänzen und lässt die äußere Lösung bei einem fehlenden optionalen Treffer bestehen. Das beschreibt <a href="#quelle-1">Abschnitt 6 [1]</a>. Als <code>report.rq</code> speichern:</p>
+<pre role="region" tabindex="0" aria-label="SPARQL report.rq"><code class="language-sparql">PREFIX ex: &lt;https://example.org/engineering/&gt;
+SELECT ?decision ?source ?evidence
+WHERE {
+  ?decision a ex:Decision ;
+            ex:status ex:ReadyForReview .
+  OPTIONAL { ?decision ex:source ?source . }
+  OPTIONAL { ?decision ex:evidence ?evidence . }
+}
+ORDER BY ?decision ?source ?evidence</code></pre>
+<p><strong>Ergebnis: fünf Zeilen für vier Entscheidungen.</strong> <code>d1</code> erscheint wegen seiner beiden Quellen zweimal. Die Nachweisvariable bleibt bei <code>d2</code> ungebunden. Würden beide optionalen Tripelmuster als Pflichtmuster geschrieben, verschwände gerade dieser problematische Datensatz aus dem Bericht.</p>
+<p>Zählen Sie daher nicht ungeprüft Ergebniszeilen als Entscheidungen. Für eine Liste eindeutiger Kennungen genügt hier eine Projektion <code>SELECT DISTINCT ?decision</code>. Wenn Quelle und Nachweis mit ausgegeben werden, bleiben die unterschiedlichen Kombinationen auch mit <code>DISTINCT</code> verschieden. Die Regeln zur Duplikateliminierung stehen in <a href="#quelle-1">Abschnitt 15.3 [1]</a>.</p>
+<p>Eine weitere typische Falle ist ein Filter auf einer optional gebundenen Variable außerhalb des optionalen Blocks. Dadurch können Lösungen mit fehlendem Wert entfallen. Ob der Filter in den Block gehört oder die Entscheidung bewusst ausschließen soll, muss aus der Berichtsfrage hervorgehen. Diese Varianten nicht ohne Gegenprobe austauschen.</p>
+<h2 id="ausfuehren">Lokal mit Python und RDFLib ausführen</h2>
+<p>Die vier Dateien in einem eigenen Arbeitsordner ablegen. Benötigt werden Python und RDFLib; geprüft wurde das Beispiel mit Python 3.14 und RDFLib 7.6.0. Die Bibliothek in einer separaten Umgebung mit <code>python -m pip install rdflib==7.6.0</code> installieren. Folgenden Block als <code>query_decisions.py</code> speichern und dort <code>python query_decisions.py</code> ausführen:</p>
+<pre role="region" tabindex="0" aria-label="Python query_decisions.py"><code class="language-python">from pathlib import Path
+from rdflib import Graph
+
+graph = Graph().parse("decisions.ttl", format="turtle")
+for name in ("missing", "qualified", "report"):
+    query = Path(name + ".rq").read_text(encoding="utf-8")
+    print(name)
+    for row in graph.query(query):
+        print(tuple(None if value is None else str(value)
+                    for value in row))</code></pre>
+<p>Das Skript liest ausschließlich die angegebenen lokalen Dateien und verwendet keine entfernten SPARQL-Dienste. Es verändert den Graphen nicht. RDFLib führt die Abfragen über <code>Graph.query()</code> aus; die Iteration liefert die Variablenwerte je Ergebniszeile. Siehe die <a href="#quelle-2">offizielle RDFLib-Dokumentation [2]</a>. Fehlende Bindungen werden im Beispiel ausdrücklich als <code>None</code> ausgegeben.</p>
+<h2>Gegenproben vor dem Einsatz</h2>
+<ol>
+<li><strong>Nachweis ergänzen:</strong> <code>d2</code> mit <code>ex:testA</code> verknüpfen. Die Entscheidung muss aus beiden Fehlerlisten verschwinden.</li>
+<li><strong>Nur einen zweiten Quellenverweis ergänzen:</strong> Die Fehlerlisten dürfen sich nicht ändern; die Übersicht erhält eine zusätzliche Kombination.</li>
+<li><strong>Typ einer Entscheidung entfernen:</strong> Sie verschwindet aus der gewählten Grundmenge. Das demonstriert eine Auswahlgrenze, keine erfolgreiche Reparatur.</li>
+<li><strong>Leeren Graphen abfragen:</strong> Keine Treffer bedeuten hier keine geprüften Entscheidungen. Erwartete Kennungen müssen deshalb zusätzlich abgeglichen werden.</li>
+</ol>
+<p>Diese Gegenproben wurden automatisiert am Lehrbeispiel ausgeführt. Für einen produktiven Bericht sollten Datenstand, Abfrageversion, betrachteter Graph und erwartete Grundmenge dokumentiert werden. Bei mehreren benannten Graphen ist zusätzlich festzulegen, aus welchem Graphen Entscheidungen und Nachweise gelesen werden. Eine Suche im falschen Datenbereich kann sonst wie eine fachliche Lücke aussehen.</p>
+<h2>Wie ergänzen sich SPARQL und SHACL?</h2>
+<p>Für diesen Arbeitsablauf empfehle ich SPARQL für gezielte Fragen und nachvollziehbare Arbeitslisten, SHACL für einen vereinbarten Strukturvertrag. Beide benötigen fachlich definierte Regeln und eine überprüfte Datenauswahl. Der <a href="/insights/knowledge-graphs-industrielle-bildverarbeitung">Einstieg zu Knowledge Graphs in der Bildverarbeitung</a> zeigt, wie Entscheidungen, Konfigurationen und Evidenz zusammenhängen können.</p>
+<aside class="article-next-step" aria-label="Passende Leistung"><h2>Engineering-Wissen nachvollziehbar auswerten?</h2><p>Ich unterstütze bei der Strukturierung technischer Begriffe, Entscheidungen und Abhängigkeiten sowie bei verständlicher Dokumentation.</p><a class="text-link" href="/consulting">Technische Beratung und Knowledge Graphs →</a></aside>
+<h2>Primärquellen</h2>
+<ol><li id="quelle-1"><a href="https://www.w3.org/TR/sparql11-query/">W3C: SPARQL 1.1 Query Language – insbesondere Abschnitte 6, 8.1.1, 15.3 und 17.4.2.1</a></li><li id="quelle-2"><a href="https://rdflib.readthedocs.io/en/latest/intro_to_sparql/">RDFLib: Querying with SPARQL</a></li></ol>
+<p class="article__source-note">Quellen geprüft am 13. November 2026. Beispieldaten, Abfragen und Vorgehensempfehlungen sind eigene Lehr- und Modellierungsvorschläge. Sie enthalten keine betrieblichen Informationen und keine Freigabeaussage.</p>
+</article></main>
+<footer class="site-footer"><div class="container"><ul class="footer-nav"><li><a href="/insights">Insights</a></li><li><a href="/uebermich">Über mich</a></li><li><a href="/consulting">Consulting</a></li><li><a href="/dozententaetigkeit">Dozententätigkeit</a></li><li><a href="/nachhilfe">Nachhilfe</a></li><li><a href="/kontakt">Kontakt</a></li></ul><ul class="footer-legal"><li><a href="/impressum">Impressum</a></li><li><a href="/datenschutz">Datenschutz</a></li><li><a href="/agb">Allgemeine Geschäftsbedingungen (AGB)</a></li><li><a href="/widerruf">Widerruf</a></li></ul><p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p></div></footer>
+<script src="/js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
