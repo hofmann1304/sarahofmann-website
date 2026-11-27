@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulink-Solver: feste oder variable Schritte? | Sara Hofmann</title>
+<meta name="description" content="Simulink-Solver nachvollziehbar wählen: feste und variable Schrittweite, Abtastzeit, Genauigkeitsprüfung und Vorbereitung auf Echtzeitausführung.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://sarahofmann.de/insights/simulink-solver-feste-variable-schrittweite">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/insights/simulink-solver-feste-variable-schrittweite">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/insights/simulink-fixed-variable-step-solver">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/insights/simulink-solver-feste-variable-schrittweite">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Simulink-Solver wählen: feste oder variable Schrittweite?">
+<meta property="og:description" content="Simulink-Solver nachvollziehbar wählen: feste und variable Schrittweite, Abtastzeit, Genauigkeitsprüfung und Vorbereitung auf Echtzeitausführung.">
+<meta property="og:url" content="https://sarahofmann.de/insights/simulink-solver-feste-variable-schrittweite">
+<meta property="og:locale" content="de_DE">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="og:site_name" content="Sara Hofmann">
+<meta property="article:published_time" content="2026-11-27">
+<meta property="article:modified_time" content="2026-11-27">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Simulink-Solver wählen: feste oder variable Schrittweite?">
+<meta name="twitter:description" content="Simulink-Solver nachvollziehbar wählen: feste und variable Schrittweite, Abtastzeit, Genauigkeitsprüfung und Vorbereitung auf Echtzeitausführung.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="/assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="/css/style.css?v=20260911">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Simulink-Solver wählen: feste oder variable Schrittweite?",
+  "description": "Simulink-Solver nachvollziehbar wählen: feste und variable Schrittweite, Abtastzeit, Genauigkeitsprüfung und Vorbereitung auf Echtzeitausführung.",
+  "datePublished": "2026-11-27",
+  "dateModified": "2026-11-27",
+  "inLanguage": "de",
+  "mainEntityOfPage": "https://sarahofmann.de/insights/simulink-solver-feste-variable-schrittweite",
+  "author": {
+    "@type": "Person",
+    "name": "Sara Hofmann",
+    "url": "https://sarahofmann.de/uebermich",
+    "@id": "https://sarahofmann.de/uebermich#person"
+  },
+  "publisher": {
+    "@id": "https://sarahofmann.de/#business"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<header class="site-header"><div class="site-header__inner">
+<a class="brand" href="/" aria-label="Sara Hofmann – Startseite"><img src="/assets/images/logo-transparent.png" alt="Sara Hofmann – Freelance Engineer &amp; Consultant" width="600" height="600"></a>
+<nav class="main-nav" id="main-nav" aria-label="Hauptnavigation"><ul class="main-nav__list"><li><a href="/uebermich">Über mich</a></li><li><a href="/consulting">Consulting</a></li><li><a href="/dozententaetigkeit">Dozententätigkeit</a></li><li><a href="/nachhilfe">Nachhilfe</a></li><li><a href="/kontakt">Kontakt</a></li></ul></nav>
+<div class="header-actions"><nav class="lang-switcher" aria-label="Sprache wählen">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+<a href="/insights/simulink-solver-feste-variable-schrittweite" lang="de" hreflang="de" aria-current="page">DE</a><span aria-hidden="true">/</span><a href="/en/insights/simulink-fixed-variable-step-solver" lang="en" hreflang="en">EN</a>
+</nav><a class="cv-badge" href="/lebenslauf" aria-label="Lebenslauf – wird aktualisiert">CV</a><button class="nav-toggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button></div>
+</div></header>
+<main id="main"><article class="article article--technical">
+<a class="back-link" href="/insights">← Alle Insights</a>
+<p class="eyebrow">Simulink · Modellierung · Prüfmethodik</p>
+<h1 class="gradient-text">Simulink-Solver wählen: feste oder variable Schrittweite?</h1>
+<p class="article__meta"><time datetime="2026-11-27">27. November 2026</time> · Verfasst von <a href="/uebermich" rel="author">Sara Hofmann</a></p>
+
+<p><strong>Feste oder variable Schrittweite in Simulink?</strong> Die passende Einstellung hängt davon ab, welche Zustände das Modell enthält, welche Ergebnisse belastbar sein müssen und ob später eine Ausführung auf Zielhardware geplant ist. Dieser Leitfaden zeigt einen nachvollziehbaren Auswahl- und Prüfablauf für typische Engineering-Modelle.</p>
+<p>Der Beitrag vertieft die Solverfrage aus dem <a href="/insights/matlab-simulink">Überblick zu MATLAB und Simulink</a>. Der beschriebene Regelkreis ist ein frei gewähltes Lehrszenario. Es werden keine Kundenmodelle, betrieblichen Einstellungen oder gemessenen Projektlaufzeiten veröffentlicht.</p>
+<nav class="article-toc" aria-label="Inhaltsverzeichnis"><h2>Auf dieser Seite</h2><ul><li><a href="#grundlagen">Solvertyp und Modellzustände</a></li><li><a href="#auswahl">Eine erste Auswahl treffen</a></li><li><a href="#abtastzeit">Schrittweite und Abtastzeit trennen</a></li><li><a href="#pruefplan">Ergebnisse systematisch vergleichen</a></li><li><a href="#echtzeit">Übergang zur Echtzeitausführung</a></li></ul></nav>
+<h2 id="grundlagen">Zwei Entscheidungen gehören zusammen</h2>
+<p>In den Modellkonfigurationsparametern wird der Solver im Bereich <span lang="en">Solver</span> ausgewählt. <span lang="en">Fixed-step</span> verwendet eine feste Schrittweite, <span lang="en">Variable-step</span> passt sie während der Simulation an. Davon getrennt ist die Frage, ob kontinuierliche Zustände numerisch integriert werden müssen oder ein diskreter Solver genügt. Die offizielle <a href="#quelle-1">MathWorks-Anleitung zur Solverwahl [1]</a> erläutert beide Einteilungen.</p>
+<p>Ein rein diskretes Modell benötigt keine Integration kontinuierlicher Zustände. Ein kontinuierliches Streckenmodell mit digitalem Regler kann dagegen kontinuierliche und diskrete Zustände enthalten. „Im Modell gibt es einen diskreten Block“ ist deshalb noch keine Begründung, einen rein diskreten Solver einzusetzen.</p>
+<p>Die automatische Solverwahl ist ein sinnvoller erster Kandidat, wenn noch keine geprüfte Konfiguration vorliegt. Für einen nachvollziehbaren Vergleich sollten anschließend der tatsächlich verwendete Solver und seine Einstellungen dokumentiert werden. Ein Eintrag <code>auto</code> allein beschreibt das Versuchsergebnis nicht ausreichend.</p>
+<h2 id="auswahl">Drei Ausgangslagen für die erste Auswahl</h2>
+<p>Die folgende Tabelle ist eine technische Entscheidungshilfe für den Einstieg. Sie ersetzt die Prüfung am konkreten Modell nicht. MathWorks empfiehlt eine iterative Auswahl anhand von Modellverhalten, Genauigkeit und Rechenaufwand; die Dokumentation zeigt auch, wie eine variable Referenzrechnung zur Auswahl einer festen Schrittweite genutzt werden kann. Siehe <a href="#quelle-2">Choose a Fixed-Step Solver [2]</a>.</p>
+<p class="article__source-note">Auf schmalen Bildschirmen lässt sich die Tabelle seitlich scrollen. Mit der Tastatur: Tabelle fokussieren und die Pfeiltasten verwenden.</p>
+<div class="article-table" role="region" aria-label="Vergleich typischer Ausgangslagen für die Solverwahl" tabindex="0">
+<table><caption>Solverwahl: drei Ausgangslagen</caption><thead><tr><th scope="col">Aufgabe</th><th scope="col">Erster Kandidat</th><th scope="col">Nächste Prüfung</th></tr></thead><tbody>
+<tr><th scope="row">Kontinuierliche Dynamik offline untersuchen</th><td>Geeigneter kontinuierlicher Variable-step-Solver</td><td>Ändern strengere Toleranzen die entscheidenden Ergebnisse?</td></tr>
+<tr><th scope="row">Rein diskretes Modell auswerten</th><td>Diskreter Solver mit zum Modell passender Zeitsteuerung</td><td>Werden die vorgesehenen Ausführungszeitpunkte aller Raten eingehalten?</td></tr>
+<tr><th scope="row">Generierten Code für ein getaktetes Echtzeitziel vorbereiten</th><td>Fixed-step-Konfiguration für das Ziel</td><td>Stimmen Ergebnisqualität und Ausführungsbudget auf der Hardware?</td></tr>
+</tbody></table></div>
+<p>Ein Solvername wie <code>ode45</code> ist keine allgemeine Qualitätsgarantie. Variable kontinuierliche Solver unterscheiden sich unter anderem hinsichtlich ihrer Eignung für steife und nicht steife Probleme. Die <a href="#quelle-3">Solverübersicht [3]</a> beschreibt diese Unterschiede. Wenn ein Kandidat ungewöhnlich viele kleine Schritte benötigt, sollten neben den Toleranzen auch Modellstruktur und Verfahrenseignung untersucht werden.</p>
+<h2 id="abtastzeit">Schrittweite ist nicht die Reglerabtastzeit</h2>
+<p>Die Abtastzeit eines diskreten Blocks beschreibt seine Ausführungszeitpunkte. Bei kontinuierlichen Zuständen bestimmt der Solver dagegen die numerischen Integrationsschritte. Das sind unterschiedliche Aufgaben, auch wenn die Einstellungen zueinander passen müssen. Die <a href="#quelle-4">Dokumentation zu Abtastzeiten [4]</a> erläutert diskrete Ausführungszeitpunkte sowie Haupt- und Zwischenschritte kontinuierlicher Berechnungen.</p>
+<p>Betrachten wir als Lehrszenario eine kontinuierliche Strecke mit digitalem Regler und Stellgrößenbegrenzung. Sie möchten das Überschwingen nach einem Sollwertwechsel bewerten. Wird zur Genauigkeitsprüfung die Solver-Schrittweite verkleinert, sollte die beabsichtigte Reglerabtastzeit unverändert bleiben. Sonst ändern Sie gleichzeitig die numerische Berechnung und das Verhalten des modellierten Reglers.</p>
+<p>Prüfen Sie bei geerbten Abtastzeiten auch die tatsächlich kompilierten Raten. Meine Empfehlung ist, vor dem Vergleich die wesentlichen Raten und Modellvarianten festzuhalten. Eine bequeme Änderung an einem Block darf nicht unbemerkt eine andere zeitliche Modellstruktur erzeugen.</p>
+<h2 id="pruefplan">Ein Prüfplan mit klarer Vergleichsfrage</h2>
+<h3>1. Die relevante Aussage vor dem Versuch festlegen</h3>
+<p>Für den beschriebenen Regelkreis könnten das maximale Überschwingen, die Zeit bis zum Eintritt in ein vorher definiertes Toleranzband und der Zeitpunkt einer Begrenzungsaktivierung relevant sein. Welche Abweichung akzeptabel ist, muss aus der Anwendung kommen. Der Leitfaden gibt dafür keine universellen Zahlen vor.</p>
+<p>Verwenden Sie für die verglichenen Läufe denselben Modellstand, dieselben Anfangszustände, Eingangssignale, Parameter und dieselbe Simulationsdauer. Speichern Sie die benötigten Signale mit Zeitbezug. Vergleichen Sie Zeitpunkte und Größen anhand derselben Auswertungsdefinition; ein glatter Kurvenverlauf allein ist kein Prüfkriterium.</p>
+<h3>2. Eine Variable-step-Rechnung auf Empfindlichkeit prüfen</h3>
+<p>Bei einem geeigneten variablen kontinuierlichen Solver können strengere relative oder absolute Toleranzen als Gegenprobe dienen. MathWorks beschreibt diesen Vergleich in <a href="#quelle-5">Check and Improve Simulation Accuracy [5]</a>. Wählen Sie die Gegenprobe passend zu den Zustandsgrößen und bewerten Sie erneut die festgelegten Kennwerte.</p>
+<p>Bleiben die Kennwerte ähnlich, ist das ein Hinweis auf geringe Empfindlichkeit gegenüber dieser Änderung. Es beweist weder die physikalische Richtigkeit des Modells noch die Eignung für jede andere Anregung. Eine Referenzrechnung ist hier eine begründete Vergleichsbasis, keine automatisch exakte Lösung.</p>
+<h3>3. Feste Schrittweiten mit derselben Aufgabe vergleichen</h3>
+<p>Für einen Fixed-step-Kandidaten empfehle ich, mehrere zulässige Schrittweiten einschließlich einer kleineren Gegenprobe zu untersuchen. Die geänderte Schrittweite muss weiterhin zur zeitlichen Modellstruktur passen. Dokumentieren Sie je Lauf Solver, Schrittweite, Kennwerte und Rechenaufwand.</p>
+<p>Die üblichen expliziten kontinuierlichen Fixed-step-Solver besitzen keine eigene Fehlerkontrolle. Ihre Genauigkeit hängt wesentlich von Verfahren und Schrittweite ab; das beschreibt <a href="#quelle-6">Fixed-Step Solvers in Simulink [6]</a>. Eine erfolgreiche Simulation ohne Fehlermeldung belegt deshalb noch nicht, dass die Schrittweite fein genug ist.</p>
+<p>Wählen Sie nicht ausschließlich den schnellsten Lauf. Wenn eine gröbere Einstellung die für die Entscheidung relevante Spitze verändert oder einen anderen Ereigniszeitpunkt liefert, muss diese Abweichung fachlich bewertet werden. Erst danach lässt sich der Rechenvorteil sinnvoll einordnen.</p>
+<h3>4. Schaltvorgänge und Nulldurchgänge gesondert betrachten</h3>
+<p>Diskontinuitäten können zusätzliche numerische Arbeit verursachen. Die Nulldurchgangserkennung unterstützt die Lokalisierung solcher Ereignisse; sehr häufige Ereignisse können die Simulation verlangsamen oder zum Abbruch führen. Die <a href="#quelle-7">MathWorks-Dokumentation [7]</a> zeigt dieses Verhalten und die verfügbaren Algorithmen.</p>
+<p>Bei einem Problem zunächst die beteiligten Blöcke und das erwartete Schaltverhalten untersuchen. Das Abschalten einer Diagnose oder das Ignorieren von Ereignissen sollte nicht allein dazu dienen, einen Lauf schneller zu beenden. Prüfen Sie die Wirkung einer Änderung anhand der Ereignisfolge und der relevanten Ausgangsgrößen.</p>
+<h2 id="echtzeit">Fixed-step allein garantiert keine Echtzeitfähigkeit</h2>
+<p>Für die spätere Hardwareausführung kommt zur numerischen Frage ein Zeitbudget hinzu: Die Berechnung muss rechtzeitig fertig werden. MathWorks beschreibt für Simulink Real-Time eine CPU-Überlastung, wenn die Verarbeitung eines Modellschritts nicht vor dem nächsten Schritt abgeschlossen ist. Auch I/O-Latenzen können beitragen. Siehe <a href="#quelle-8">Fehlersuche bei CPU-Überlastung [8]</a>.</p>
+<p>Eine feinere Schrittweite kann die Ergebnisqualität verbessern und zugleich das verfügbare Ausführungsbudget verkleinern. Deshalb sollten numerischer Vergleich und Zeitmessung auf dem vorgesehenen Ziel als getrennte Nachweise im Protokoll stehen. Aus einer schnellen Desktop-Simulation lässt sich keine gemessene Zielhardware-Laufzeit ableiten.</p>
+<h2>Was gehört ins Prüfprotokoll?</h2>
+<ul><li>Modell- und MATLAB-/Simulink-Version, Varianten, Parameter und Anfangszustände.</li><li>Solvertyp und Solvername; je nach Verfahren Schrittweite oder Toleranzen und Schrittweitenbegrenzungen.</li><li>Relevante Abtastzeiten, Einstellungen zur Ereigniserkennung und aufgetretene Diagnosen.</li><li>Auswertungsdefinitionen, Akzeptanzkriterien, Ergebnisabweichungen und offene Fragen.</li><li>Bei Zielhardware: Plattform, Ausführungskonfiguration und tatsächlich beobachtete Zeitreserven.</li></ul>
+<p>Diese Protokollstruktur und der Prüfablauf sind eigene technische Empfehlungen. Sie verbinden die Solverwahl mit der Frage, welche Entscheidung die Simulation unterstützen soll. Für die nachvollziehbare Verknüpfung von Entscheidungen und Nachweisen ist auch der Beitrag zu <a href="/insights/shacl-knowledge-graph-validierung-python">prüfbaren Engineering Knowledge Graphs</a> relevant.</p>
+<aside class="article-next-step" aria-label="Passende Leistung"><h2>Simulationsergebnisse nachvollziehbar bewerten?</h2><p>Ich unterstütze bei modellbasierten Aufgaben mit MATLAB und Simulink sowie bei der strukturierten Bewertung und Dokumentation technischer Zusammenhänge.</p><a class="text-link" href="/consulting">Technische Beratung ansehen →</a></aside>
+<h2>Primärquellen</h2>
+<ol><li id="quelle-1"><a href="https://www.mathworks.com/help/simulink/ug/choose-a-solver.html">MathWorks: Choose a Solver</a></li><li id="quelle-2"><a href="https://www.mathworks.com/help/simulink/ug/choose-fixed-step-solver.html">MathWorks: Choose a Fixed-Step Solver</a></li><li id="quelle-3"><a href="https://www.mathworks.com/help/simulink/ug/variable-step-solvers-in-simulink-1.html">MathWorks: Variable Step Solvers in Simulink</a></li><li id="quelle-4"><a href="https://www.mathworks.com/help/simulink/ug/types-of-sample-time.html">MathWorks: Types of Sample Time</a></li><li id="quelle-5"><a href="https://www.mathworks.com/help/simulink/ug/improving-simulation-accuracy.html">MathWorks: Check and Improve Simulation Accuracy</a></li><li id="quelle-6"><a href="https://www.mathworks.com/help/simulink/ug/fixed-step-solvers-in-simulink.html">MathWorks: Fixed-Step Solvers in Simulink</a></li><li id="quelle-7"><a href="https://www.mathworks.com/help/simulink/ug/zero-crossing-detection.html">MathWorks: Zero-Crossing Detection</a></li><li id="quelle-8"><a href="https://www.mathworks.com/help/slrealtime/ug/troubleshoot-overloaded-cpu-from-executing-real-time-application.html">MathWorks: Troubleshoot Overloaded CPU from Executing Real-Time Application</a></li></ol>
+<p class="article__source-note">Dokumentationsstand R2026b, Quellen geprüft am 27. November 2026. Der Beitrag beschreibt einen Prüfplan und veröffentlicht keine selbst gemessenen Simulations- oder Hardwareergebnisse. Spezialfälle wie lokale Simscape-Solver benötigen zusätzliche produktspezifische Einstellungen.</p>
+</article></main>
+<footer class="site-footer"><div class="container"><ul class="footer-nav"><li><a href="/insights">Insights</a></li><li><a href="/uebermich">Über mich</a></li><li><a href="/consulting">Consulting</a></li><li><a href="/dozententaetigkeit">Dozententätigkeit</a></li><li><a href="/nachhilfe">Nachhilfe</a></li><li><a href="/kontakt">Kontakt</a></li></ul><ul class="footer-legal"><li><a href="/impressum">Impressum</a></li><li><a href="/datenschutz">Datenschutz</a></li><li><a href="/agb">Allgemeine Geschäftsbedingungen (AGB)</a></li><li><a href="/widerruf">Widerruf</a></li></ul><p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p></div></footer>
+<script src="/js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulink Solver: Fixed or Variable Step? | Sara Hofmann</title>
+<meta name="description" content="Choose a Simulink solver with a traceable workflow: fixed and variable step sizes, sample times, accuracy checks and preparation for real-time execution.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://sarahofmann.de/en/insights/simulink-fixed-variable-step-solver">
+<link rel="alternate" hreflang="de" href="https://sarahofmann.de/insights/simulink-solver-feste-variable-schrittweite">
+<link rel="alternate" hreflang="en" href="https://sarahofmann.de/en/insights/simulink-fixed-variable-step-solver">
+<link rel="alternate" hreflang="x-default" href="https://sarahofmann.de/insights/simulink-solver-feste-variable-schrittweite">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Choosing a Simulink solver: fixed or variable step size?">
+<meta property="og:description" content="Choose a Simulink solver with a traceable workflow: fixed and variable step sizes, sample times, accuracy checks and preparation for real-time execution.">
+<meta property="og:url" content="https://sarahofmann.de/en/insights/simulink-fixed-variable-step-solver">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:site_name" content="Sara Hofmann">
+<meta property="article:published_time" content="2026-11-27">
+<meta property="article:modified_time" content="2026-11-27">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Choosing a Simulink solver: fixed or variable step size?">
+<meta name="twitter:description" content="Choose a Simulink solver with a traceable workflow: fixed and variable step sizes, sample times, accuracy checks and preparation for real-time execution.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-v2-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-v2-16.png">
+<link rel="apple-touch-icon" href="/assets/images/favicon-v2-180.png">
+<link rel="stylesheet" href="/css/style.css?v=20260911">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Choosing a Simulink solver: fixed or variable step size?",
+  "description": "Choose a Simulink solver with a traceable workflow: fixed and variable step sizes, sample times, accuracy checks and preparation for real-time execution.",
+  "datePublished": "2026-11-27",
+  "dateModified": "2026-11-27",
+  "inLanguage": "en",
+  "mainEntityOfPage": "https://sarahofmann.de/en/insights/simulink-fixed-variable-step-solver",
+  "author": {
+    "@type": "Person",
+    "name": "Sara Hofmann",
+    "url": "https://sarahofmann.de/en/about",
+    "@id": "https://sarahofmann.de/uebermich#person"
+  },
+  "publisher": {
+    "@id": "https://sarahofmann.de/#business"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><div class="site-header__inner">
+<a class="brand" href="/en/" aria-label="Sara Hofmann – Home"><img src="/assets/images/logo-transparent.png" alt="Sara Hofmann – Freelance Engineer &amp; Consultant" width="600" height="600"></a>
+<nav class="main-nav" id="main-nav" aria-label="Main navigation"><ul class="main-nav__list"><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul></nav>
+<div class="header-actions"><nav class="lang-switcher" aria-label="Choose language">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>
+<a href="/insights/simulink-solver-feste-variable-schrittweite" lang="de" hreflang="de">DE</a><span aria-hidden="true">/</span><a href="/en/insights/simulink-fixed-variable-step-solver" lang="en" hreflang="en" aria-current="page">EN</a>
+</nav><a class="cv-badge" href="/en/cv" aria-label="CV – currently being updated">CV</a><button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button></div>
+</div></header>
+<main id="main"><article class="article article--technical">
+<a class="back-link" href="/en/insights">← All insights</a>
+<p class="eyebrow">Simulink · Modelling · Validation</p>
+<h1 class="gradient-text">Choosing a Simulink solver: fixed or variable step size?</h1>
+<p class="article__meta"><time datetime="2026-11-27">27 November 2026</time> · Written by <a href="/en/about" rel="author">Sara Hofmann</a></p>
+
+<p><strong>Fixed or variable step size in Simulink?</strong> The right setting depends on the states in the model, the results that must be trustworthy and whether execution on target hardware is planned. This guide presents a traceable selection and validation workflow for typical engineering models.</p>
+<p>The article develops the solver question introduced in the <a href="/insights/matlab-simulink">German overview of MATLAB and Simulink</a>. The control loop discussed here is an invented teaching scenario. No client models, operational settings or measured project runtimes are disclosed.</p>
+<nav class="article-toc" aria-label="Contents"><h2>On this page</h2><ul><li><a href="#basics">Solver type and model states</a></li><li><a href="#selection">Make an initial selection</a></li><li><a href="#sample-time">Separate step size and sample time</a></li><li><a href="#validation">Compare results systematically</a></li><li><a href="#real-time">Move towards real-time execution</a></li></ul></nav>
+<h2 id="basics">Two decisions belong together</h2>
+<p>Select the solver in the <em>Solver</em> pane of the model configuration parameters. <em>Fixed-step</em> uses a fixed step size; <em>Variable-step</em> adjusts it during simulation. A separate question is whether continuous states need numerical integration or a discrete solver is sufficient. The official <a href="#source-1">MathWorks solver-selection guide [1]</a> explains both classifications.</p>
+<p>A purely discrete model does not require integration of continuous states. A continuous plant with a digital controller, however, can contain both continuous and discrete states. “The model includes a discrete block” is therefore not sufficient justification for choosing a purely discrete solver.</p>
+<p>Automatic solver selection is a useful first candidate when no validated configuration exists. For a traceable comparison, record the solver actually used and its settings afterwards. An <code>auto</code> setting alone does not sufficiently describe the experiment.</p>
+<h2 id="selection">Three starting points for an initial selection</h2>
+<p>The following table is an engineering starting aid. It does not replace checking the specific model. MathWorks recommends iterative selection based on model behaviour, accuracy and computational cost; its documentation also shows how a variable-step baseline can inform a fixed-step choice. See <a href="#source-2">Choose a Fixed-Step Solver [2]</a>.</p>
+<p class="article__source-note">On narrow screens, scroll the table sideways. With a keyboard, focus the table and use the arrow keys.</p>
+<div class="article-table" role="region" aria-label="Comparison of typical starting points for solver selection" tabindex="0">
+<table><caption>Three starting points</caption><thead><tr><th scope="col">Task</th><th scope="col">First candidate</th><th scope="col">Next check</th></tr></thead><tbody>
+<tr><th scope="row">Investigate continuous dynamics offline</th><td>Suitable continuous variable-step solver</td><td>Do tighter tolerances change the decisive results?</td></tr>
+<tr><th scope="row">Analyse a purely discrete model</th><td>Discrete solver with timing appropriate to the model</td><td>Are the intended execution times of all rates respected?</td></tr>
+<tr><th scope="row">Prepare generated code for a clocked real-time target</th><td>Fixed-step configuration for the target</td><td>Are result quality and execution budget acceptable on the hardware?</td></tr>
+</tbody></table></div>
+<p>A name such as <code>ode45</code> is not a general quality guarantee. Variable-step continuous solvers differ, among other things, in their suitability for stiff and nonstiff problems. The <a href="#source-3">solver overview [3]</a> describes these differences. If a candidate takes unusually many small steps, investigate model structure and method suitability as well as tolerances.</p>
+<h2 id="sample-time">Solver step size is not controller sample time</h2>
+<p>A discrete block's sample time describes when it executes. For continuous states, the solver determines numerical integration steps. These are different responsibilities, even though the settings must be compatible. The <a href="#source-4">sample-time documentation [4]</a> explains discrete execution times and the major and minor steps of continuous calculations.</p>
+<p>Consider a teaching scenario with a continuous plant, a digital controller and actuator limiting. You want to assess overshoot after a setpoint change. When reducing the solver step size to check accuracy, keep the intended controller sample time unchanged. Otherwise you simultaneously change the numerical calculation and the behaviour of the modelled controller.</p>
+<p>For inherited sample times, also inspect the actual compiled rates. I recommend recording important rates and model variants before comparing runs. A convenient change to a block should not silently produce a different timing structure in the model.</p>
+<h2 id="validation">A validation plan with a clear comparison question</h2>
+<h3>1. Define the relevant claim before running the experiment</h3>
+<p>For the control loop described here, relevant quantities might include maximum overshoot, time to enter a previously defined tolerance band and the time at which limiting becomes active. Acceptable deviations must come from the application. This guide does not prescribe universal numerical limits.</p>
+<p>Use the same model revision, initial states, input signals, parameters and simulation duration for the compared runs. Log the required signals with their time information. Compare times and quantities using the same evaluation definitions; a smooth curve alone is not a validation criterion.</p>
+<h3>2. Check a variable-step run for sensitivity</h3>
+<p>For a suitable variable-step continuous solver, tighter relative or absolute tolerances can provide a countercheck. MathWorks describes this comparison in <a href="#source-5">Check and Improve Simulation Accuracy [5]</a>. Choose the countercheck to suit the state quantities and assess the predefined metrics again.</p>
+<p>If the metrics remain similar, that indicates low sensitivity to this change. It proves neither the model's physical correctness nor suitability for every other excitation. A baseline run is a justified comparison basis here, not an automatically exact solution.</p>
+<h3>3. Compare fixed step sizes on the same task</h3>
+<p>For a fixed-step candidate, I recommend investigating several admissible step sizes, including a smaller countercheck. The changed step size must remain compatible with the model's timing structure. Record solver, step size, metrics and computational cost for each run.</p>
+<p>The usual explicit continuous fixed-step solvers have no built-in error control. Their accuracy depends substantially on method and step size, as described in <a href="#source-6">Fixed-Step Solvers in Simulink [6]</a>. A simulation completing without an error message therefore does not establish that the step size is fine enough.</p>
+<p>Do not select solely by the fastest runtime. If a coarser setting changes the peak relevant to the decision or produces a different event time, assess that deviation against the engineering requirements. Only then can the computational saving be judged meaningfully.</p>
+<h3>4. Examine switching and zero crossings separately</h3>
+<p>Discontinuities can require additional numerical work. Zero-crossing detection helps locate such events; very frequent events can slow simulation or cause it to stop. The <a href="#source-7">MathWorks documentation [7]</a> demonstrates this behaviour and the available algorithms.</p>
+<p>When problems occur, first investigate the involved blocks and the expected switching behaviour. Disabling diagnostics or ignoring events should not merely serve to finish a run faster. Assess the effect of a change using the event sequence and relevant outputs.</p>
+<h2 id="real-time">Fixed-step alone does not guarantee real-time capability</h2>
+<p>Hardware execution adds a time budget to the numerical question: the calculation must finish on time. For Simulink Real-Time, MathWorks describes CPU overload when processing a model step has not finished before the next step. I/O latency can contribute too. See <a href="#source-8">CPU-overload troubleshooting [8]</a>.</p>
+<p>A finer step size can improve result quality while reducing the available execution budget. Record the numerical comparison and timing measurements on the intended target as separate evidence. A fast desktop simulation cannot supply a measured target-hardware runtime.</p>
+<h2>What belongs in the validation record?</h2>
+<ul><li>Model and MATLAB/Simulink versions, variants, parameters and initial states.</li><li>Solver type and name; step size or tolerances and step-size limits, depending on the method.</li><li>Relevant sample times, event-detection settings and observed diagnostics.</li><li>Evaluation definitions, acceptance criteria, result differences and open questions.</li><li>For target hardware: platform, execution configuration and time margins actually observed.</li></ul>
+<p>This record structure and validation workflow are original engineering recommendations. They connect solver selection with the decision the simulation is meant to support. The guide to <a href="/en/insights/shacl-knowledge-graph-validation-python">validating engineering knowledge graphs</a> also addresses traceable links between decisions and evidence.</p>
+<aside class="article-next-step" aria-label="Related service"><h2>Assess simulation results traceably?</h2><p>I support model-based tasks with MATLAB and Simulink and the structured assessment and documentation of technical relationships.</p><a class="text-link" href="/en/consulting">View technical consulting →</a></aside>
+<h2>Primary sources</h2>
+<ol><li id="source-1"><a href="https://www.mathworks.com/help/simulink/ug/choose-a-solver.html">MathWorks: Choose a Solver</a></li><li id="source-2"><a href="https://www.mathworks.com/help/simulink/ug/choose-fixed-step-solver.html">MathWorks: Choose a Fixed-Step Solver</a></li><li id="source-3"><a href="https://www.mathworks.com/help/simulink/ug/variable-step-solvers-in-simulink-1.html">MathWorks: Variable Step Solvers in Simulink</a></li><li id="source-4"><a href="https://www.mathworks.com/help/simulink/ug/types-of-sample-time.html">MathWorks: Types of Sample Time</a></li><li id="source-5"><a href="https://www.mathworks.com/help/simulink/ug/improving-simulation-accuracy.html">MathWorks: Check and Improve Simulation Accuracy</a></li><li id="source-6"><a href="https://www.mathworks.com/help/simulink/ug/fixed-step-solvers-in-simulink.html">MathWorks: Fixed-Step Solvers in Simulink</a></li><li id="source-7"><a href="https://www.mathworks.com/help/simulink/ug/zero-crossing-detection.html">MathWorks: Zero-Crossing Detection</a></li><li id="source-8"><a href="https://www.mathworks.com/help/slrealtime/ug/troubleshoot-overloaded-cpu-from-executing-real-time-application.html">MathWorks: Troubleshoot Overloaded CPU from Executing Real-Time Application</a></li></ol>
+<p class="article__source-note">Documentation baseline: R2026b; sources checked on 27 November 2026. This article describes a validation plan and publishes no independently measured simulation or hardware results. Special cases such as local Simscape solvers require additional product-specific configuration.</p>
+</article></main>
+<footer class="site-footer"><div class="container"><ul class="footer-nav"><li><a href="/en/insights">Insights</a></li><li><a href="/en/about">About</a></li><li><a href="/en/consulting">Consulting</a></li><li><a href="/en/lecturing">Lecturing</a></li><li><a href="/en/tutoring">Tutoring</a></li><li><a href="/en/contact">Contact</a></li></ul><ul class="footer-legal"><li><a href="/impressum">Legal notice (German)</a></li><li><a href="/datenschutz">Privacy policy (German)</a></li><li><a href="/agb">Terms (German)</a></li><li><a href="/widerruf">Cancellation policy (German)</a></li></ul><p class="footer-bottom">© <span id="year"></span> Sara Hofmann</p></div></footer>
+<script src="/js/main.js?v=20260830"></script>
+<!-- Cloudflare Web Analytics --><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"4eafad2b955d48a8a7260434095148f2"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
