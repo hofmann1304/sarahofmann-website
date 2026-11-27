@@ -43,6 +43,14 @@ for (const size of [{ width: 1280, height: 900 }, { width: 390, height: 844 }]) 
           await page.screenshot({ path: testInfo.outputPath('page.png'), fullPage: true });
         }
         if (file.includes('insights/')) {
+          if (size.width === 390) {
+            for (const table of await page.locator('.article-table').all()) {
+              if (await table.evaluate(el => el.scrollWidth > el.clientWidth)) {
+                await table.press('ArrowRight');
+                await expect.poll(() => table.evaluate(el => el.scrollLeft)).toBeGreaterThan(0);
+              }
+            }
+          }
           const alternate = page.locator('.lang-switcher a:not([aria-current])');
           const target = await alternate.getAttribute('href');
           await alternate.click();

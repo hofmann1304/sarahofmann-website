@@ -25,6 +25,7 @@ jobs:
       - run: python scripts/test_sparql_article.py
       - run: python scripts/validate_html.py insights/opencv-pixelflaeche-konturflaeche-python.html en/insights/opencv-pixel-area-contour-area-python.html
       - run: python scripts/validate_html.py insights/sparql-fehlende-nachweise-knowledge-graph.html en/insights/sparql-missing-evidence-knowledge-graph.html
+      - run: python scripts/validate_html.py insights/simulink-solver-feste-variable-schrittweite.html en/insights/simulink-fixed-variable-step-solver.html
       - run: git diff --check
       - run: npm test
       - uses: actions/upload-artifact@v4
